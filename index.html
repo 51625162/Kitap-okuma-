@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kitap Rafı — Okuma Köşen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Literata:ital,wght@0,400;0,500;0,600;1,400&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="mark">K</div>
+    <div>
+      <h1>Kitap Rafı</h1>
+      <span class="sub">Okuma Köşen</span>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="streak-pill" id="streakPill" onclick="openStats()">🔥 <span id="streakCount">0</span> gün</button>
+    <button class="icon-btn" onclick="openStats()">📊 İstatistikler</button>
+    <button class="btn-primary" onclick="openAddModal()">+ Kitap Ekle</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="quote-strip" id="quoteStrip"></div>
+
+  <div class="filters">
+    <button class="filter-btn active" data-f="all" onclick="setFilter('all')">Tümü</button>
+    <button class="filter-btn" data-f="reading" onclick="setFilter('reading')">Devam Eden</button>
+    <button class="filter-btn" data-f="finished" onclick="setFilter('finished')">Tamamlanan</button>
+  </div>
+
+  <div id="grid" class="grid"></div>
+  <div id="emptyState" class="empty-state" style="display:none;">
+    <h3>Raf henüz boş</h3>
+    <p>İlk kitabını ekle, kaldığın yeri biz hatırlayalım.</p>
+    <button class="btn-primary" onclick="openAddModal()" style="margin-top:10px;">+ Kitap Ekle</button>
+  </div>
+</div>
+
+<!-- Add modal -->
+<div class="overlay" id="addOverlay">
+  <div class="modal">
+    <h2>Yeni Kitap Ekle</h2>
+    <div class="tabbar">
+      <button class="active" id="tabPdfBtn" onclick="switchTab('pdf')">📄 PDF Yükle</button>
+      <button id="tabTextBtn" onclick="switchTab('text')">✍️ Metin Yapıştır</button>
+    </div>
+
+    <label>Kitap Adı</label>
+    <input type="text" id="inpTitle" placeholder="Örn: Fareler ve İnsanlar">
+    <label>Yazar (opsiyonel)</label>
+    <input type="text" id="inpAuthor" placeholder="Örn: John Steinbeck">
+
+    <div id="pdfTab">
+      <label>PDF Dosyası</label>
+      <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
+        <div id="dropzoneText">Tıkla ya da PDF dosyasını buraya sürükle</div>
+      </div>
+      <input type="file" id="fileInput" accept="application/pdf" style="display:none;">
+    </div>
+
+    <div id="textTab" style="display:none;">
+      <label>Kitap Metni</label>
+      <textarea id="inpText" placeholder="Metni buraya yapıştır..."></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeAddModal()">Vazgeç</button>
+      <button class="btn-primary" style="flex:1;" onclick="addBook()">Rafa Ekle</button>
+    </div>
+  </div>
+</div>
+
+<!-- Stats modal -->
+<div class="overlay" id="statsOverlay">
+  <div class="modal">
+    <h2>İstatistiklerin</h2>
+    <div class="stat-row"><span>Okuma serisi</span><b id="statStreak">0 gün</b></div>
+    <div class="stat-row"><span>Bugün okunan (tahmini)</span><b id="statToday">0 sayfa</b></div>
+    <div class="stat-row"><span>Toplam okunan (tahmini)</span><b id="statTotal">0 sayfa</b></div>
+    <div class="stat-row"><span>Tamamlanan kitap</span><b id="statFinished">0</b></div>
+    <label style="margin-top:14px;">Günlük hedef (sayfa)</label>
+    <input type="text" id="inpGoal" style="width:100px;">
+    <h3 style="margin-top:20px;font-size:15px;color:var(--forest);">Rozetler</h3>
+    <div class="badge-grid" id="badgeGrid"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeStats()">Kapat</button>
+      <button class="btn-primary" style="flex:1;" onclick="saveGoal()">Hedefi Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reader -->
+<div class="reader" id="reader">
+  <div class="reader-top">
+    <button class="icon-btn" onclick="closeReader()">← Rafa Dön</button>
+    <div class="reader-title" id="readerTitle"></div>
+    <div class="reader-controls">
+      <div class="font-btns" id="fontBtns" style="display:none;">
+        <button onclick="changeFont(-1)">A-</button>
+        <button onclick="changeFont(1)">A+</button>
+      </div>
+      <button class="icon-btn" onclick="toggleNight()">🌙</button>
+    </div>
+  </div>
+  <div class="reader-progress-track"><div class="reader-progress-fill" id="readerProgressFill"></div></div>
+  <div class="reader-body" id="readerBody">
+    <canvas id="pdfCanvas" style="display:none;"></canvas>
+    <div class="text-page" id="textPage" style="display:none;"></div>
+  </div>
+  <div class="reader-footer" id="pdfFooter" style="display:none;">
+    <button class="nav-btn" onclick="prevPage()">‹</button>
+    <div class="page-indicator" id="pageIndicator">1 / 1</div>
+    <button class="nav-btn" onclick="nextPage()">›</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
