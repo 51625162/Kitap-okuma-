@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kitap Rafı — Okuma Köşen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Literata:ital,wght@0,400;0,500;0,600;1,400&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+    --bg:#F6F1E7;
+    --bg-alt:#EDE4D3;
+    --card:#FBF8F1;
+    --ink:#241C14;
+    --ink-soft:#5C5140;
+    --forest:#1F3B2C;
+    --forest-light:#2F5741;
+    --brass:#B8863B;
+    --brass-light:#D7AE6C;
+    --wine:#7A2E2E;
+    --line:#DCD0B8;
+    --shadow: 0 6px 20px rgba(36,28,20,0.08);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Public Sans',sans-serif;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:'Fraunces',serif;margin:0;letter-spacing:-0.01em;}
+  button{font-family:inherit;cursor:pointer;}
+  ::selection{background:var(--brass-light);}
+
+  /* ---------- Header ---------- */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:22px 28px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,var(--bg-alt),var(--bg));
+  }
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand .mark{
+    width:38px;height:38px;border-radius:8px;background:var(--forest);
+    display:flex;align-items:center;justify-content:center;color:var(--brass-light);
+    font-family:'Fraunces',serif;font-weight:700;font-size:18px;transform:rotate(-4deg);
+    box-shadow: var(--shadow);
+  }
+  .brand h1{font-size:22px;color:var(--forest);}
+  .brand span.sub{display:block;font-size:11px;color:var(--ink-soft);letter-spacing:.06em;text-transform:uppercase;font-family:'Public Sans',sans-serif;}
+
+  .header-actions{display:flex;align-items:center;gap:14px;}
+  .streak-pill{
+    display:flex;align-items:center;gap:6px;background:var(--wine);color:#F6E9DF;
+    padding:7px 13px;border-radius:999px;font-size:13px;font-weight:600;box-shadow:var(--shadow);
+    cursor:pointer;border:none;
+  }
+  .goal-ring{width:38px;height:38px;cursor:pointer;}
+  .btn-primary{
+    background:var(--forest);color:#F6F1E7;border:none;padding:10px 18px;border-radius:9px;
+    font-weight:600;font-size:14px;box-shadow:var(--shadow);transition:transform .15s ease, background .15s ease;
+  }
+  .btn-primary:hover{background:var(--forest-light);transform:translateY(-1px);}
+  .icon-btn{background:transparent;border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--ink);font-size:13px;}
+  .icon-btn:hover{border-color:var(--brass);}
+
+  /* ---------- Library ---------- */
+  .wrap{max-width:1080px;margin:0 auto;padding:24px 28px 60px;}
+  .quote-strip{
+    font-family:'Literata',serif;font-style:italic;color:var(--ink-soft);
+    border-left:3px solid var(--brass);padding:10px 16px;margin:18px 0 26px;font-size:15px;
+  }
+  .filters{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+  .filter-btn{
+    background:var(--card);border:1px solid var(--line);color:var(--ink-soft);
+    padding:7px 14px;border-radius:999px;font-size:13px;font-weight:600;
+  }
+  .filter-btn.active{background:var(--forest);color:#F6F1E7;border-color:var(--forest);}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px;}
+  .book-card{
+    position:relative;background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:18px 16px 16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px;
+    min-height:190px;overflow:hidden;
+  }
+  .book-card .ribbon{
+    position:absolute;top:0;right:18px;width:14px;height:56px;background:var(--brass);
+    clip-path:polygon(0 0,100% 0,100% 100%,50% 78%,0 100%);
+    box-shadow:0 2px 4px rgba(0,0,0,.15);
+  }
+  .book-card .ribbon.finished{background:var(--wine);}
+  .book-type{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--brass);font-weight:700;}
+  .book-title{font-family:'Fraunces',serif;font-size:17px;font-weight:600;line-height:1.25;margin-top:2px;padding-right:20px;}
+  .book-author{font-size:12px;color:var(--ink-soft);}
+  .book-progress-bar{height:6px;background:var(--bg-alt);border-radius:99px;overflow:hidden;margin-top:auto;}
+  .book-progress-fill{height:100%;background:var(--forest);border-radius:99px;}
+  .book-progress-fill.finished{background:var(--wine);}
+  .book-meta{font-size:11.5px;color:var(--ink-soft);display:flex;justify-content:space-between;}
+  .book-actions{display:flex;gap:8px;margin-top:4px;}
+  .book-actions button{flex:1;font-size:12.5px;padding:7px 8px;border-radius:7px;}
+  .btn-continue{background:var(--forest);color:#fff;border:none;font-weight:600;}
+  .btn-delete{background:transparent;border:1px solid var(--line);color:var(--wine);}
+  .btn-delete:hover{background:#F5E7E3;}
+
+  .empty-state{
+    text-align:center;padding:70px 20px;color:var(--ink-soft);border:1px dashed var(--line);border-radius:14px;
+  }
+  .empty-state h3{font-size:20px;color:var(--forest);margin-bottom:8px;}
+
+  /* ---------- Modal (Add) ---------- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(36,28,20,.45);display:none;align-items:center;justify-content:center;
+    z-index:50;padding:20px;
+  }
+  .overlay.show{display:flex;}
+  .modal{
+    background:var(--bg);border-radius:14px;width:100%;max-width:480px;padding:26px;box-shadow:0 20px 50px rgba(0,0,0,.25);
+    max-height:90vh;overflow-y:auto;
+  }
+  .modal h2{color:var(--forest);font-size:20px;margin-bottom:16px;}
+  .tabbar{display:flex;gap:6px;background:var(--bg-alt);padding:4px;border-radius:9px;margin-bottom:18px;}
+  .tabbar button{flex:1;background:transparent;border:none;padding:8px;border-radius:7px;font-size:13px;font-weight:600;color:var(--ink-soft);}
+  .tabbar button.active{background:var(--card);color:var(--forest);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+  label{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin:12px 0 5px;}
+  input[type=text], textarea{
+    width:100%;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:14px;
+    background:var(--card);color:var(--ink);
+  }
+  textarea{min-height:150px;resize:vertical;font-family:'Literata',serif;line-height:1.5;}
+  .dropzone{
+    border:2px dashed var(--line);border-radius:10px;padding:26px;text-align:center;color:var(--ink-soft);
+    font-size:13px;cursor:pointer;background:var(--card);
+  }
+  .dropzone.drag{border-color:var(--brass);background:#FBF3E2;}
+  .modal-actions{display:flex;gap:10px;margin-top:20px;}
+  .modal-actions .btn-secondary{background:transparent;border:1px solid var(--line);color:var(--ink-soft);padding:10px 16px;border-radius:9px;font-size:14px;}
+
+  /* ---------- Reader ---------- */
+  .reader{position:fixed;inset:0;background:var(--bg);z-index:80;display:none;flex-direction:column;}
+  .reader.show{display:flex;}
+  .reader.night{background:#1B2420;}
+  .reader-top{
+    display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--line);
+    background:var(--bg-alt);
+  }
+  .reader.night .reader-top{background:#20302A;border-color:#324439;}
+  .reader-title{font-family:'Fraunces',serif;font-size:15px;color:var(--forest);}
+  .reader.night .reader-title{color:#E8E1D3;}
+  .reader-controls{display:flex;gap:8px;align-items:center;}
+  .reader-progress-track{height:4px;background:var(--line);}
+  .reader-progress-fill{height:100%;background:var(--brass);width:0%;transition:width .2s;}
+
+  .reader-body{flex:1;overflow:auto;display:flex;justify-content:center;align-items:flex-start;padding:30px 18px;}
+  #pdfCanvas{box-shadow:0 8px 30px rgba(0,0,0,.18);border-radius:4px;max-width:100%;max-height:100%;height:auto;width:auto;margin:auto;}
+  .text-page{
+    max-width:640px;width:100%;font-family:'Literata',serif;line-height:1.85;white-space:pre-wrap;
+    color:var(--ink);font-size:17px;
+  }
+  /* Yatay mod: dikeyde yer kısıtlı olduğu için üst/alt barları daralt, sayfayı yüksekliğe göre sığdır */
+  @media (orientation: landscape) and (max-height: 500px){
+    .reader-top{padding:6px 14px;}
+    .reader-footer{padding:6px;gap:10px;}
+    .reader-body{padding:8px;}
+    #pdfCanvas{max-height:calc(100vh - 90px);width:auto;}
+    .nav-btn{width:32px;height:32px;font-size:14px;}
+  }
+  .reader.night .text-page{color:#E8E1D3;}
+  .reader-footer{
+    display:flex;align-items:center;justify-content:center;gap:16px;padding:14px;border-top:1px solid var(--line);
+    background:var(--bg-alt);
+  }
+  .reader.night .reader-footer{background:#20302A;border-color:#324439;}
+  .page-indicator{font-size:13px;color:var(--ink-soft);min-width:90px;text-align:center;}
+  .nav-btn{background:var(--forest);color:#fff;border:none;width:38px;height:38px;border-radius:9px;font-size:16px;}
+  .nav-btn:disabled{opacity:.35;}
+  .font-btns button{width:30px;height:30px;border-radius:7px;border:1px solid var(--line);background:var(--card);font-size:13px;}
+
+  /* ---------- Toast ---------- */
+  .toast{
+    position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--forest);color:#F6F1E7;padding:13px 22px;border-radius:10px;font-size:14px;
+    box-shadow:0 10px 30px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:all .3s ease;z-index:200;
+    max-width:88vw;text-align:center;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* ---------- Stats modal ---------- */
+  .badge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;}
+  .badge{
+    border:1px solid var(--line);border-radius:10px;padding:12px 8px;text-align:center;font-size:11px;color:var(--ink-soft);
+    background:var(--card);
+  }
+  .badge.unlocked{border-color:var(--brass);color:var(--forest);background:#FBF3E2;}
+  .badge .icon{font-size:22px;display:block;margin-bottom:4px;}
+  .stat-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px;}
+  .stat-row b{color:var(--forest);font-family:'Fraunces',serif;font-size:16px;}
+
+  @media (max-width:560px){
+    .topbar{padding:16px;}
+    .wrap{padding:16px;}
+    .brand h1{font-size:18px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="mark">K</div>
+    <div>
+      <h1>Kitap Rafı</h1>
+      <span class="sub">Okuma Köşen</span>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="streak-pill" id="streakPill" onclick="openStats()">🔥 <span id="streakCount">0</span> gün</button>
+    <button class="icon-btn" onclick="openStats()">📊 İstatistikler</button>
+    <button class="btn-primary" onclick="openAddModal()">+ Kitap Ekle</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="quote-strip" id="quoteStrip"></div>
+
+  <div class="filters">
+    <button class="filter-btn active" data-f="all" onclick="setFilter('all')">Tümü</button>
+    <button class="filter-btn" data-f="reading" onclick="setFilter('reading')">Devam Eden</button>
+    <button class="filter-btn" data-f="finished" onclick="setFilter('finished')">Tamamlanan</button>
+  </div>
+
+  <div id="grid" class="grid"></div>
+  <div id="emptyState" class="empty-state" style="display:none;">
+    <h3>Raf henüz boş</h3>
+    <p>İlk kitabını ekle, kaldığın yeri biz hatırlayalım.</p>
+    <button class="btn-primary" onclick="openAddModal()" style="margin-top:10px;">+ Kitap Ekle</button>
+  </div>
+</div>
+
+<!-- Add modal -->
+<div class="overlay" id="addOverlay">
+  <div class="modal">
+    <h2>Yeni Kitap Ekle</h2>
+    <div class="tabbar">
+      <button class="active" id="tabPdfBtn" onclick="switchTab('pdf')">📄 PDF Yükle</button>
+      <button id="tabTextBtn" onclick="switchTab('text')">✍️ Metin Yapıştır</button>
+    </div>
+
+    <label>Kitap Adı</label>
+    <input type="text" id="inpTitle" placeholder="Örn: Fareler ve İnsanlar">
+    <label>Yazar (opsiyonel)</label>
+    <input type="text" id="inpAuthor" placeholder="Örn: John Steinbeck">
+
+    <div id="pdfTab">
+      <label>PDF Dosyası</label>
+      <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
+        <div id="dropzoneText">Tıkla ya da PDF dosyasını buraya sürükle</div>
+      </div>
+      <input type="file" id="fileInput" accept="application/pdf" style="display:none;">
+    </div>
+
+    <div id="textTab" style="display:none;">
+      <label>Kitap Metni</label>
+      <textarea id="inpText" placeholder="Metni buraya yapıştır..."></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeAddModal()">Vazgeç</button>
+      <button class="btn-primary" style="flex:1;" onclick="addBook()">Rafa Ekle</button>
+    </div>
+  </div>
+</div>
+
+<!-- Stats modal -->
+<div class="overlay" id="statsOverlay">
+  <div class="modal">
+    <h2>İstatistiklerin</h2>
+    <div class="stat-row"><span>Okuma serisi</span><b id="statStreak">0 gün</b></div>
+    <div class="stat-row"><span>Bugün okunan (tahmini)</span><b id="statToday">0 sayfa</b></div>
+    <div class="stat-row"><span>Toplam okunan (tahmini)</span><b id="statTotal">0 sayfa</b></div>
+    <div class="stat-row"><span>Tamamlanan kitap</span><b id="statFinished">0</b></div>
+    <label style="margin-top:14px;">Günlük hedef (sayfa)</label>
+    <input type="text" id="inpGoal" style="width:100px;">
+    <h3 style="margin-top:20px;font-size:15px;color:var(--forest);">Rozetler</h3>
+    <div class="badge-grid" id="badgeGrid"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeStats()">Kapat</button>
+      <button class="btn-primary" style="flex:1;" onclick="saveGoal()">Hedefi Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reader -->
+<div class="reader" id="reader">
+  <div class="reader-top">
+    <button class="icon-btn" onclick="closeReader()">← Rafa Dön</button>
+    <div class="reader-title" id="readerTitle"></div>
+    <div class="reader-controls">
+      <div class="font-btns" id="fontBtns" style="display:none;">
+        <button onclick="changeFont(-1)">A-</button>
+        <button onclick="changeFont(1)">A+</button>
+      </div>
+      <button class="icon-btn" id="rotateBtn" onclick="rotatePage()" style="display:none;">⤾ Döndür</button>
+      <button class="icon-btn" onclick="toggleNight()">🌙</button>
+    </div>
+  </div>
+  <div class="reader-progress-track"><div class="reader-progress-fill" id="readerProgressFill"></div></div>
+  <div class="reader-body" id="readerBody">
+    <canvas id="pdfCanvas" style="display:none;"></canvas>
+    <div class="text-page" id="textPage" style="display:none;"></div>
+  </div>
+  <div class="reader-footer" id="pdfFooter" style="display:none;">
+    <button class="nav-btn" onclick="prevPage()">‹</button>
+    <div class="page-indicator" id="pageIndicator">1 / 1</div>
+    <button class="nav-btn" onclick="nextPage()">›</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+/* ---------------- Storage helpers ---------------- */
+const LS_BOOKS = 'kitaplik_books';
+const LS_STATS = 'kitaplik_stats';
+let db;
+
+function openDB(){
+  return new Promise((res,rej)=>{
+    const req = indexedDB.open('kitaplikDB', 1);
+    req.onupgradeneeded = e=>{
+      const d = e.target.result;
+      if(!d.objectStoreNames.contains('pdfs')) d.createObjectStore('pdfs');
+      if(!d.objectStoreNames.contains('texts')) d.createObjectStore('texts');
+    };
+    req.onsuccess = e=>{ db=e.target.result; res(db); };
+    req.onerror = e=> rej(e);
+  });
+}
+function idbSet(store,key,val){
+  return new Promise((res,rej)=>{
+    const tx = db.transaction(store,'readwrite');
+    tx.objectStore(store).put(val,key);
+    tx.oncomplete=()=>res();
+    tx.onerror=e=>rej(e);
+  });
+}
+function idbGet(store,key){
+  return new Promise((res,rej)=>{
+    const tx = db.transaction(store,'readonly');
+    const r = tx.objectStore(store).get(key);
+    r.onsuccess=()=>res(r.result);
+    r.onerror=e=>rej(e);
+  });
+}
+function idbDelete(store,key){
+  return new Promise((res,rej)=>{
+    const tx = db.transaction(store,'readwrite');
+    tx.objectStore(store).delete(key);
+    tx.oncomplete=()=>res();
+    tx.onerror=e=>rej(e);
+  });
+}
+
+function getBooks(){ return JSON.parse(localStorage.getItem(LS_BOOKS) || '[]'); }
+function saveBooks(b){ localStorage.setItem(LS_BOOKS, JSON.stringify(b)); }
+function getStats(){
+  return JSON.parse(localStorage.getItem(LS_STATS) || JSON.stringify({
+    streak:0, lastReadDate:null, totalPagesRead:0, todayPagesRead:0, todayDate:null,
+    dailyGoal:10, badges:[]
+  }));
+}
+function saveStats(s){ localStorage.setItem(LS_STATS, JSON.stringify(s)); }
+
+/* ---------------- Motivational quotes ---------------- */
+const QUOTES = [
+  "Bir kitap açmak, kapalı bir kapıyı aralamaktır.",
+  "Bugün okuduğun her sayfa, yarının sana bıraktığı bir mirastır.",
+  "Okuyan insan hiçbir zaman yalnız değildir.",
+  "Bir sayfa bile olsa, devam et — kaldığın yeri biz hatırlıyoruz.",
+  "En uzun yolculuklar bile tek bir sayfayla başlar.",
+  "Kitap bitmez, sadece bir sonrakine bırakılır.",
+  "Gün ne kadar yorucu olursa olsun, birkaç satır senin.",
+];
+function showQuote(){
+  document.getElementById('quoteStrip').textContent = '“'+QUOTES[Math.floor(Math.random()*QUOTES.length)]+'”';
+}
+
+/* ---------------- App state ---------------- */
+let currentFilter = 'all';
+let currentTab = 'pdf';
+let activeBook = null;
+let pdfDoc = null;
+let currentPdfPage = 1;
+let pdfRotation = 0;
+let textPages = [];
+let currentTextPageIdx = 0;
+let fontSize = 17;
+let sessionStartPage = 0;
+
+/* ---------------- Init ---------------- */
+window.addEventListener('DOMContentLoaded', async ()=>{
+  await openDB();
+  showQuote();
+  refreshStreakDisplay();
+  renderLibrary();
+  setupDropzone();
+});
+
+/* ---------------- Streak / stats ---------------- */
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function refreshStreakDisplay(){
+  const s = getStats();
+  if(s.todayDate !== todayStr()) { s.todayPagesRead = 0; s.todayDate = todayStr(); saveStats(s); }
+  document.getElementById('streakCount').textContent = s.streak;
+}
+function registerReadingActivity(pagesDelta){
+  const s = getStats();
+  const today = todayStr();
+  if(s.todayDate !== today){ s.todayPagesRead = 0; s.todayDate = today; }
+  s.todayPagesRead += pagesDelta;
+  s.totalPagesRead += pagesDelta;
+
+  if(s.lastReadDate !== today){
+    const y = new Date(); y.setDate(y.getDate()-1);
+    const yStr = y.toISOString().slice(0,10);
+    s.streak = (s.lastReadDate === yStr) ? s.streak + 1 : 1;
+    s.lastReadDate = today;
+  }
+  saveStats(s);
+  refreshStreakDisplay();
+  checkBadges(s);
+}
+const BADGE_DEFS = [
+  {id:'ilk-adim', icon:'📚', label:'İlk kitap eklendi', test:s=>getBooks().length>=1},
+  {id:'ilk-sayfa', icon:'📖', label:'İlk sayfa okundu', test:s=>s.totalPagesRead>=1},
+  {id:'seri-3', icon:'🔥', label:'3 günlük seri', test:s=>s.streak>=3},
+  {id:'seri-7', icon:'⭐', label:'7 günlük seri', test:s=>s.streak>=7},
+  {id:'yuz-sayfa', icon:'💯', label:'100 sayfa okundu', test:s=>s.totalPagesRead>=100},
+  {id:'ilk-bitirme', icon:'🏆', label:'İlk kitap bitti', test:s=>getBooks().some(b=>b.status==='finished')},
+];
+function checkBadges(s){
+  let changed=false;
+  BADGE_DEFS.forEach(b=>{
+    if(!s.badges.includes(b.id) && b.test(s)){
+      s.badges.push(b.id); changed=true;
+      showToast('🎉 Yeni rozet: '+b.label);
+    }
+  });
+  if(changed) saveStats(s);
+}
+
+/* ---------------- Library rendering ---------------- */
+function setFilter(f){
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.toggle('active', b.dataset.f===f));
+  renderLibrary();
+}
+function renderLibrary(){
+  const books = getBooks();
+  let list = books;
+  if(currentFilter==='reading') list = books.filter(b=>b.status!=='finished');
+  if(currentFilter==='finished') list = books.filter(b=>b.status==='finished');
+
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('emptyState');
+  grid.innerHTML='';
+  if(list.length===0){ empty.style.display='block'; grid.style.display='none'; return; }
+  empty.style.display='none'; grid.style.display='grid';
+
+  list.sort((a,b)=> (b.lastReadDate||b.addedDate).localeCompare(a.lastReadDate||a.addedDate));
+
+  list.forEach(b=>{
+    const progress = b.type==='pdf'
+      ? Math.round(((b.currentPage||1)/(b.totalPages||1))*100)
+      : Math.round((b.scrollRatio||0)*100);
+    const finished = b.status==='finished';
+    const card = document.createElement('div');
+    card.className='book-card';
+    card.innerHTML = `
+      <div class="ribbon ${finished?'finished':''}"></div>
+      <div class="book-type">${b.type==='pdf'?'PDF':'Metin'}</div>
+      <div class="book-title">${escapeHtml(b.title)}</div>
+      <div class="book-author">${escapeHtml(b.author||'')}</div>
+      <div class="book-progress-bar"><div class="book-progress-fill ${finished?'finished':''}" style="width:${progress}%"></div></div>
+      <div class="book-meta"><span>${finished?'Tamamlandı':progress+'% okundu'}</span><span>${b.type==='pdf'?(b.totalPages+' sayfa'):''}</span></div>
+      <div class="book-actions">
+        <button class="btn-continue" onclick="openReader('${b.id}')">${finished?'Tekrar Oku':'Devam Et'}</button>
+        <button class="btn-delete" onclick="deleteBook('${b.id}')">Sil</button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+
+/* ---------------- Add modal ---------------- */
+function openAddModal(){
+  document.getElementById('addOverlay').classList.add('show');
+  document.getElementById('inpTitle').value='';
+  document.getElementById('inpAuthor').value='';
+  document.getElementById('inpText').value='';
+  document.getElementById('fileInput').value='';
+  document.getElementById('dropzoneText').textContent='Tıkla ya da PDF dosyasını buraya sürükle';
+  switchTab('pdf');
+}
+function closeAddModal(){ document.getElementById('addOverlay').classList.remove('show'); }
+function switchTab(t){
+  currentTab=t;
+  document.getElementById('tabPdfBtn').classList.toggle('active', t==='pdf');
+  document.getElementById('tabTextBtn').classList.toggle('active', t==='text');
+  document.getElementById('pdfTab').style.display = t==='pdf'?'block':'none';
+  document.getElementById('textTab').style.display = t==='text'?'block':'none';
+}
+function setupDropzone(){
+  const dz = document.getElementById('dropzone');
+  const fi = document.getElementById('fileInput');
+  dz.addEventListener('dragover', e=>{e.preventDefault(); dz.classList.add('drag');});
+  dz.addEventListener('dragleave', ()=> dz.classList.remove('drag'));
+  dz.addEventListener('drop', e=>{
+    e.preventDefault(); dz.classList.remove('drag');
+    if(e.dataTransfer.files[0]){ fi.files = e.dataTransfer.files; updateDropzoneLabel(); }
+  });
+  fi.addEventListener('change', updateDropzoneLabel);
+}
+function updateDropzoneLabel(){
+  const fi = document.getElementById('fileInput');
+  if(fi.files[0]) document.getElementById('dropzoneText').textContent = '📄 '+fi.files[0].name;
+}
+
+async function addBook(){
+  const title = document.getElementById('inpTitle').value.trim();
+  if(!title){ showToast('Lütfen kitap adı gir'); return; }
+  const author = document.getElementById('inpAuthor').value.trim();
+  const id = 'b_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+
+  if(currentTab==='pdf'){
+    const file = document.getElementById('fileInput').files[0];
+    if(!file){ showToast('Lütfen bir PDF seç'); return; }
+    const bytes = await file.arrayBuffer();
+    await idbSet('pdfs', id, bytes.slice(0));
+    let totalPages = 1;
+    try{
+      const doc = await pdfjsLib.getDocument({data: bytes.slice(0)}).promise;
+      totalPages = doc.numPages;
+    }catch(e){ showToast('PDF okunamadı, yine de eklendi'); }
+
+    const books = getBooks();
+    books.push({id, title, author, type:'pdf', totalPages, currentPage:1, status:'reading',
+      addedDate:todayStr(), lastReadDate:null});
+    saveBooks(books);
+  } else {
+    const text = document.getElementById('inpText').value;
+    if(!text.trim()){ showToast('Lütfen metni yapıştır'); return; }
+    await idbSet('texts', id, text);
+    const books = getBooks();
+    books.push({id, title, author, type:'text', charCount:text.length, scrollRatio:0, status:'reading',
+      addedDate:todayStr(), lastReadDate:null});
+    saveBooks(books);
+  }
+
+  closeAddModal();
+  renderLibrary();
+  showQuote();
+  const s = getStats(); checkBadges(s);
+  showToast('“'+title+'” rafa eklendi 📚');
+}
+
+async function deleteBook(id){
+  if(!confirm('Bu kitabı ve okuma ilerlemeni silmek istediğine emin misin?')) return;
+  const books = getBooks().filter(b=>b.id!==id);
+  saveBooks(books);
+  await idbDelete('pdfs', id);
+  await idbDelete('texts', id);
+  renderLibrary();
+  showToast('Kitap silindi');
+}
+
+/* ---------------- Reader: open/close ---------------- */
+async function openReader(id){
+  const books = getBooks();
+  activeBook = books.find(b=>b.id===id);
+  if(!activeBook) return;
+  sessionStartPage = activeBook.type==='pdf' ? (activeBook.currentPage||1) : Math.round((activeBook.scrollRatio||0)*estimatePages(activeBook));
+
+  document.getElementById('readerTitle').textContent = activeBook.title;
+  document.getElementById('reader').classList.add('show');
+
+  if(activeBook.type==='pdf'){
+    document.getElementById('pdfCanvas').style.display='block';
+    document.getElementById('textPage').style.display='none';
+    document.getElementById('pdfFooter').style.display='flex';
+    document.getElementById('fontBtns').style.display='none';
+    document.getElementById('rotateBtn').style.display='inline-block';
+    pdfRotation = 0;
+    const bytes = await idbGet('pdfs', id);
+    pdfDoc = await pdfjsLib.getDocument({data: bytes.slice(0)}).promise;
+    currentPdfPage = activeBook.currentPage || 1;
+    renderPdfPage(currentPdfPage);
+    window.addEventListener('resize', onReaderResize);
+  } else {
+    document.getElementById('pdfCanvas').style.display='none';
+    document.getElementById('textPage').style.display='block';
+    document.getElementById('pdfFooter').style.display='none';
+    document.getElementById('fontBtns').style.display='flex';
+    document.getElementById('rotateBtn').style.display='none';
+    const text = await idbGet('texts', id);
+    document.getElementById('textPage').style.fontSize = fontSize+'px';
+    document.getElementById('textPage').textContent = text;
+    const body = document.getElementById('readerBody');
+    setTimeout(()=>{
+      body.scrollTop = (activeBook.scrollRatio||0) * (body.scrollHeight - body.clientHeight);
+    }, 30);
+    body.onscroll = onTextScroll;
+    updateTextProgressDisplay();
+  }
+}
+function closeReader(){
+  document.getElementById('reader').classList.remove('show');
+  const body = document.getElementById('readerBody');
+  body.onscroll = null;
+  window.removeEventListener('resize', onReaderResize);
+  if(activeBook && activeBook.type!=='pdf'){
+    saveTextProgress(true);
+  }
+  finalizeSession();
+  pdfDoc = null; activeBook = null;
+  renderLibrary();
+}
+function onReaderResize(){
+  if(pdfDoc && currentPdfPage) renderPdfPage(currentPdfPage);
+}
+function rotatePage(){
+  pdfRotation = (pdfRotation + 90) % 360;
+  if(pdfDoc) renderPdfPage(currentPdfPage);
+}
+function finalizeSession(){
+  if(!activeBook) return;
+  const endPage = activeBook.type==='pdf' ? (activeBook.currentPage||1) : Math.round((activeBook.scrollRatio||0)*estimatePages(activeBook));
+  const delta = Math.max(0, endPage - sessionStartPage);
+  if(delta>0) registerReadingActivity(delta);
+  if(delta>0) showToast('Bu oturumda yaklaşık '+delta+' sayfa okudun 👏');
+}
+function estimatePages(book){
+  if(book.type==='pdf') return book.totalPages||1;
+  return Math.max(1, Math.round((book.charCount||0)/1800));
+}
+
+/* ---------------- PDF navigation ---------------- */
+async function renderPdfPage(num){
+  const page = await pdfDoc.getPage(num);
+  const canvas = document.getElementById('pdfCanvas');
+  const ctx = canvas.getContext('2d');
+
+  // Ekran yatay ya da dikey olsun, sayfayı mevcut alana sığdır (döndürme dahil)
+  const body = document.getElementById('readerBody');
+  const availW = Math.max(200, body.clientWidth - 24);
+  const availH = Math.max(200, body.clientHeight - 24);
+  const baseViewport = page.getViewport({scale: 1, rotation: pdfRotation});
+  const scale = Math.min(availW / baseViewport.width, availH / baseViewport.height, 3);
+  const viewport = page.getViewport({scale: Math.max(scale, 0.3), rotation: pdfRotation});
+
+  canvas.width = viewport.width; canvas.height = viewport.height;
+  await page.render({canvasContext: ctx, viewport}).promise;
+  document.getElementById('pageIndicator').textContent = num+' / '+pdfDoc.numPages;
+  document.getElementById('readerProgressFill').style.width = Math.round((num/pdfDoc.numPages)*100)+'%';
+  persistPdfProgress(num);
+}
+function persistPdfProgress(num){
+  const books = getBooks();
+  const b = books.find(x=>x.id===activeBook.id);
+  b.currentPage = num;
+  b.lastReadDate = todayStr();
+  if(num >= b.totalPages) b.status='finished';
+  saveBooks(books);
+  activeBook = b;
+  if(num >= b.totalPages) celebrateFinish();
+}
+function nextPage(){ if(currentPdfPage < pdfDoc.numPages){ currentPdfPage++; renderPdfPage(currentPdfPage);} }
+function prevPage(){ if(currentPdfPage > 1){ currentPdfPage--; renderPdfPage(currentPdfPage);} }
+
+/* ---------------- Text reading ---------------- */
+function onTextScroll(){
+  saveTextProgress(false);
+}
+function saveTextProgress(force){
+  const body = document.getElementById('readerBody');
+  const max = body.scrollHeight - body.clientHeight;
+  const ratio = max>0 ? Math.min(1, body.scrollTop/max) : 1;
+  const books = getBooks();
+  const b = books.find(x=>x.id===activeBook.id);
+  b.scrollRatio = ratio;
+  b.lastReadDate = todayStr();
+  if(ratio >= 0.98) b.status='finished';
+  saveBooks(books);
+  activeBook = b;
+  document.getElementById('readerProgressFill').style.width = Math.round(ratio*100)+'%';
+  if(ratio>=0.98 && force!==false) celebrateFinish();
+}
+function updateTextProgressDisplay(){
+  document.getElementById('readerProgressFill').style.width = Math.round((activeBook.scrollRatio||0)*100)+'%';
+}
+function changeFont(delta){
+  fontSize = Math.max(13, Math.min(26, fontSize+delta*1));
+  document.getElementById('textPage').style.fontSize = fontSize+'px';
+}
+function toggleNight(){
+  document.getElementById('reader').classList.toggle('night');
+}
+function celebrateFinish(){
+  showToast('🎉 Kitabı bitirdin! Harikasın.');
+}
+
+/* ---------------- Stats modal ---------------- */
+function openStats(){
+  const s = getStats();
+  document.getElementById('statStreak').textContent = s.streak+' gün';
+  document.getElementById('statToday').textContent = s.todayPagesRead+' sayfa';
+  document.getElementById('statTotal').textContent = s.totalPagesRead+' sayfa';
+  document.getElementById('statFinished').textContent = getBooks().filter(b=>b.status==='finished').length;
+  document.getElementById('inpGoal').value = s.dailyGoal;
+  const grid = document.getElementById('badgeGrid');
+  grid.innerHTML='';
+  BADGE_DEFS.forEach(b=>{
+    const unlocked = s.badges.includes(b.id);
+    const el = document.createElement('div');
+    el.className = 'badge'+(unlocked?' unlocked':'');
+    el.innerHTML = `<span class="icon">${b.icon}</span>${b.label}`;
+    grid.appendChild(el);
+  });
+  document.getElementById('statsOverlay').classList.add('show');
+}
+function closeStats(){ document.getElementById('statsOverlay').classList.remove('show'); }
+function saveGoal(){
+  const s = getStats();
+  const v = parseInt(document.getElementById('inpGoal').value)||10;
+  s.dailyGoal = v;
+  saveStats(s);
+  showToast('Günlük hedef kaydedildi: '+v+' sayfa');
+}
+
+/* ---------------- Toast ---------------- */
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.classList.remove('show'), 3200);
+}
+</script>
+</body>
+</html>

@@ -72,6 +72,7 @@ let currentTab = 'pdf';
 let activeBook = null;
 let pdfDoc = null;
 let currentPdfPage = 1;
+let pdfRotation = 0;
 let textPages = [];
 let currentTextPageIdx = 0;
 let fontSize = 17;
@@ -270,15 +271,19 @@ async function openReader(id){
     document.getElementById('textPage').style.display='none';
     document.getElementById('pdfFooter').style.display='flex';
     document.getElementById('fontBtns').style.display='none';
+    document.getElementById('rotateBtn').style.display='inline-block';
+    pdfRotation = 0;
     const bytes = await idbGet('pdfs', id);
     pdfDoc = await pdfjsLib.getDocument({data: bytes.slice(0)}).promise;
     currentPdfPage = activeBook.currentPage || 1;
     renderPdfPage(currentPdfPage);
+    window.addEventListener('resize', onReaderResize);
   } else {
     document.getElementById('pdfCanvas').style.display='none';
     document.getElementById('textPage').style.display='block';
     document.getElementById('pdfFooter').style.display='none';
     document.getElementById('fontBtns').style.display='flex';
+    document.getElementById('rotateBtn').style.display='none';
     const text = await idbGet('texts', id);
     document.getElementById('textPage').style.fontSize = fontSize+'px';
     document.getElementById('textPage').textContent = text;
@@ -294,12 +299,20 @@ function closeReader(){
   document.getElementById('reader').classList.remove('show');
   const body = document.getElementById('readerBody');
   body.onscroll = null;
+  window.removeEventListener('resize', onReaderResize);
   if(activeBook && activeBook.type!=='pdf'){
     saveTextProgress(true);
   }
   finalizeSession();
   pdfDoc = null; activeBook = null;
   renderLibrary();
+}
+function onReaderResize(){
+  if(pdfDoc && currentPdfPage) renderPdfPage(currentPdfPage);
+}
+function rotatePage(){
+  pdfRotation = (pdfRotation + 90) % 360;
+  if(pdfDoc) renderPdfPage(currentPdfPage);
 }
 function finalizeSession(){
   if(!activeBook) return;
@@ -318,7 +331,15 @@ async function renderPdfPage(num){
   const page = await pdfDoc.getPage(num);
   const canvas = document.getElementById('pdfCanvas');
   const ctx = canvas.getContext('2d');
-  const viewport = page.getViewport({scale: 1.4});
+
+  // Ekran yatay ya da dikey olsun, sayfayı mevcut alana sığdır (döndürme dahil)
+  const body = document.getElementById('readerBody');
+  const availW = Math.max(200, body.clientWidth - 24);
+  const availH = Math.max(200, body.clientHeight - 24);
+  const baseViewport = page.getViewport({scale: 1, rotation: pdfRotation});
+  const scale = Math.min(availW / baseViewport.width, availH / baseViewport.height, 3);
+  const viewport = page.getViewport({scale: Math.max(scale, 0.3), rotation: pdfRotation});
+
   canvas.width = viewport.width; canvas.height = viewport.height;
   await page.render({canvasContext: ctx, viewport}).promise;
   document.getElementById('pageIndicator').textContent = num+' / '+pdfDoc.numPages;
