@@ -150,13 +150,18 @@
     max-width:640px;width:100%;font-family:'Literata',serif;line-height:1.85;white-space:pre-wrap;
     color:var(--ink);font-size:17px;
   }
-  /* Yatay mod: dikeyde yer kısıtlı olduğu için üst/alt barları daralt, sayfayı yüksekliğe göre sığdır */
+  /* Yatay mod: dikeyde yer kısıtlı olduğu için barları iyice daralt, sayfaya maksimum alan bırak */
   @media (orientation: landscape) and (max-height: 500px){
-    .reader-top{padding:6px 14px;}
-    .reader-footer{padding:6px;gap:10px;}
-    .reader-body{padding:8px;}
-    #pdfCanvas{max-height:calc(100vh - 90px);width:auto;}
-    .nav-btn{width:32px;height:32px;font-size:14px;}
+    .reader-top{padding:4px 10px;}
+    .reader-title{font-size:12px;max-width:30vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .reader-top .icon-btn{padding:5px 8px;font-size:12px;}
+    .reader-controls{gap:5px;}
+    .reader-footer{padding:4px;gap:8px;}
+    .reader-body{padding:4px 6px;}
+    #pdfCanvas{max-height:calc(100vh - 62px);width:auto;}
+    .nav-btn{width:30px;height:30px;font-size:14px;}
+    .page-indicator{font-size:11px;min-width:60px;}
+    .font-btns button{width:26px;height:26px;}
   }
   .reader.night .text-page{color:#E8E1D3;}
   .reader-footer{
@@ -625,6 +630,10 @@ function closeReader(){
 function onReaderResize(){
   if(pdfDoc && currentPdfPage) renderPdfPage(currentPdfPage);
 }
+window.addEventListener('orientationchange', ()=>{
+  // iOS'ta boyutlar dönüşten hemen sonra güncellenmeyebiliyor, kısa gecikmeyle tekrar dene
+  setTimeout(()=>{ if(pdfDoc && currentPdfPage) renderPdfPage(currentPdfPage); }, 200);
+});
 function rotatePage(){
   pdfRotation = (pdfRotation + 90) % 360;
   if(pdfDoc) renderPdfPage(currentPdfPage);
@@ -649,8 +658,8 @@ async function renderPdfPage(num){
 
   // Ekran yatay ya da dikey olsun, sayfayı mevcut alana sığdır (döndürme dahil)
   const body = document.getElementById('readerBody');
-  const availW = Math.max(200, body.clientWidth - 24);
-  const availH = Math.max(200, body.clientHeight - 24);
+  const availW = Math.max(200, body.clientWidth - 12);
+  const availH = Math.max(200, body.clientHeight - 12);
   const baseViewport = page.getViewport({scale: 1, rotation: pdfRotation});
   const scale = Math.min(availW / baseViewport.width, availH / baseViewport.height, 3);
   const viewport = page.getViewport({scale: Math.max(scale, 0.3), rotation: pdfRotation});

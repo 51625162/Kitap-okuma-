@@ -310,6 +310,10 @@ function closeReader(){
 function onReaderResize(){
   if(pdfDoc && currentPdfPage) renderPdfPage(currentPdfPage);
 }
+window.addEventListener('orientationchange', ()=>{
+  // iOS'ta boyutlar dönüşten hemen sonra güncellenmeyebiliyor, kısa gecikmeyle tekrar dene
+  setTimeout(()=>{ if(pdfDoc && currentPdfPage) renderPdfPage(currentPdfPage); }, 200);
+});
 function rotatePage(){
   pdfRotation = (pdfRotation + 90) % 360;
   if(pdfDoc) renderPdfPage(currentPdfPage);
@@ -334,8 +338,8 @@ async function renderPdfPage(num){
 
   // Ekran yatay ya da dikey olsun, sayfayı mevcut alana sığdır (döndürme dahil)
   const body = document.getElementById('readerBody');
-  const availW = Math.max(200, body.clientWidth - 24);
-  const availH = Math.max(200, body.clientHeight - 24);
+  const availW = Math.max(200, body.clientWidth - 12);
+  const availH = Math.max(200, body.clientHeight - 12);
   const baseViewport = page.getViewport({scale: 1, rotation: pdfRotation});
   const scale = Math.min(availW / baseViewport.width, availH / baseViewport.height, 3);
   const viewport = page.getViewport({scale: Math.max(scale, 0.3), rotation: pdfRotation});
