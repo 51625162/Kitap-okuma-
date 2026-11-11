@@ -124,6 +124,7 @@
         <button onclick="changeFont(-1)">A-</button>
         <button onclick="changeFont(1)">A+</button>
       </div>
+      <button class="icon-btn" id="immersiveBtn" onclick="toggleReaderImmersive()">⛶ Tam Ekran</button>
       <button class="icon-btn" id="rotateBtn" onclick="rotatePage()" style="display:none;">⤾ Döndür</button>
       <button class="icon-btn" onclick="toggleNight()">🌙</button>
     </div>
@@ -146,8 +147,8 @@
     <div class="timer-total">Bu kitaptaki toplam okuma: <b id="bookTotalReadingTime">00:00:00</b></div>
   </section>
   <div class="reader-body" id="readerBody">
-    <canvas id="pdfCanvas" style="display:none;"></canvas>
-    <div class="text-page" id="textPage" style="display:none;"></div>
+    <canvas id="pdfCanvas" onclick="toggleReaderImmersive()" style="display:none;" title="Tam ekran için dokun"></canvas>
+    <div class="text-page" id="textPage" onclick="toggleReaderImmersive()" style="display:none;"></div>
   </div>
   <div class="reader-footer" id="pdfFooter" style="display:none;">
     <button class="nav-btn" onclick="prevPage()">‹</button>
