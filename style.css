@@ -276,10 +276,19 @@
 .reader #pdfCanvas{flex:0 0 auto!important;}
 .reader.immersive #pdfCanvas{width:auto!important;max-width:none!important;}
 
-/* Zoom control stays accessible in normal and immersive reader modes */
-.zoom-floating{position:fixed;top:12px;right:14px;z-index:10020;padding:5px;border-radius:12px;background:rgba(250,247,239,.96);box-shadow:0 3px 16px rgba(0,0,0,.18);backdrop-filter:blur(8px)}
-.reader.immersive .zoom-floating{display:block}
+
+/* Reader zoom controls: place in the visible toolbar, not over the page */
+#readerZoomControl{position:relative;z-index:30;flex:0 0 auto;display:flex;align-items:center;gap:7px;padding:5px 8px;border:1px solid var(--line);border-radius:10px;background:var(--bg-alt);box-shadow:0 2px 8px rgba(0,0,0,.08);touch-action:pan-x}
+#readerZoomControl button{width:34px;height:34px;min-width:34px;border:0;border-radius:7px;background:var(--forest);color:#fff;font-size:22px;line-height:1;cursor:pointer;touch-action:manipulation}
+#readerZoomControl input{display:block;width:105px;height:28px;margin:0;accent-color:var(--forest);cursor:pointer;touch-action:pan-x}
+#readerZoomControl output{display:inline-block;min-width:42px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
+.reader-top{gap:10px}
+.reader-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .reader .reader-body{overflow:auto!important;min-width:0}
 .reader #pdfCanvas{flex:0 0 auto!important}
-.reader.immersive #pdfCanvas{width:auto!important;max-width:none!important;max-height:none!important}
-@media(max-width:700px){.zoom-floating{top:8px;right:8px}.zoom-control{gap:4px;padding:3px 5px}.zoom-control input{width:64px}}
+@media(max-width:700px){
+ #readerZoomControl{gap:4px;padding:3px 5px}
+ #readerZoomControl button{width:30px;height:30px;min-width:30px}
+ #readerZoomControl input{width:75px}
+ .reader-controls{justify-content:flex-end}
+}
