@@ -44,14 +44,14 @@ function idbDelete(store,key){
 }
 
 function getBooks(){ return JSON.parse(localStorage.getItem(LS_BOOKS) || '[]'); }
-function saveBooks(b){ localStorage.setItem(LS_BOOKS, JSON.stringify(b)); }
+function saveBooks(b){ localStorage.setItem(LS_BOOKS, JSON.stringify(b)); if(window.queueCloudSync) window.queueCloudSync(); }
 function getStats(){
   return JSON.parse(localStorage.getItem(LS_STATS) || JSON.stringify({
     streak:0, lastReadDate:null, totalPagesRead:0, todayPagesRead:0, todayDate:null,
     dailyGoal:10, badges:[]
   }));
 }
-function saveStats(s){ localStorage.setItem(LS_STATS, JSON.stringify(s)); }
+function saveStats(s){ localStorage.setItem(LS_STATS, JSON.stringify(s)); if(window.queueCloudSync) window.queueCloudSync(); }
 
 
 /* ---------------- Persistent reading bookmark ---------------- */
@@ -61,12 +61,14 @@ function getReadingBookmark(){
 }
 function saveReadingBookmark(){
   const title=document.getElementById('bookmarkBookTitle').value.trim();
-  const page=Math.max(1,parseInt(document.getElementById('bookmarkPage').value,10)||0);
-  if(!title || !page){ showToast('Kitap adını ve sayfa numarasını gir'); return; }
+  const rawPage=document.getElementById('bookmarkPage').value.trim();
+  const page=Number(rawPage);
+  if(!title || !rawPage || !Number.isInteger(page) || page<1){ showToast('Kitap adını ve geçerli sayfa numarasını gir'); return; }
   const record={title,page,updatedAt:new Date().toISOString()};
   localStorage.setItem(LS_READING_BOOKMARK,JSON.stringify(record));
+  if(window.queueCloudSync) window.queueCloudSync();
   renderReadingBookmark();
-  showToast('Okuma konumun kalıcı olarak kaydedildi');
+  showToast('Okuma konumun kaydedildi');
 }
 function renderReadingBookmark(){
   const record=getReadingBookmark();
@@ -87,6 +89,7 @@ function syncReadingBookmark(book,page){
   if(!book) return;
   const record={title:book.title,page:Math.max(1,page||1),bookId:book.id,updatedAt:new Date().toISOString()};
   localStorage.setItem(LS_READING_BOOKMARK,JSON.stringify(record));
+  if(window.queueCloudSync) window.queueCloudSync();
   renderReadingBookmark();
 }
 
@@ -119,7 +122,7 @@ let timerTick = null;
 let timerBookId = null;
 const LS_READING_TIMERS = 'kitaplik_reading_timers';
 function getReadingTimers(){ return JSON.parse(localStorage.getItem(LS_READING_TIMERS) || '{}'); }
-function saveReadingTimers(data){ localStorage.setItem(LS_READING_TIMERS, JSON.stringify(data)); }
+function saveReadingTimers(data){ localStorage.setItem(LS_READING_TIMERS, JSON.stringify(data)); if(window.queueCloudSync) window.queueCloudSync(); }
 function timerElapsed(t){
   if(!t) return 0;
   return Math.max(0, (t.elapsedMs||0) + (t.startedAt ? Date.now()-t.startedAt : 0));
@@ -202,7 +205,8 @@ function restartReading(){
 
 /* ---------------- Init ---------------- */
 window.addEventListener('DOMContentLoaded', async ()=>{
-  await openDB();
+  window.appStorageReady = openDB();
+  await window.appStorageReady;
   showQuote();
   refreshStreakDisplay();
   renderLibrary();
@@ -349,17 +353,17 @@ async function addBook(){
     }catch(e){ showToast('PDF okunamadı, yine de eklendi'); }
 
     const books = getBooks();
-    books.push({id, title, author, type:'pdf', totalPages, currentPage:1, status:'reading',
-      addedDate:todayStr(), lastReadDate:null});
-    saveBooks(books);
+    const newBook={id, title, author, type:'pdf', totalPages, currentPage:1, status:'reading', addedDate:todayStr(), lastReadDate:null, updatedAt:Date.now()};
+    books.push(newBook); saveBooks(books);
+    if(window.cloudUploadFile) window.cloudUploadFile(id, bytes, 'pdf').catch(window.cloudSyncError);
   } else {
     const text = document.getElementById('inpText').value;
     if(!text.trim()){ showToast('Lütfen metni yapıştır'); return; }
     await idbSet('texts', id, text);
     const books = getBooks();
-    books.push({id, title, author, type:'text', charCount:text.length, scrollRatio:0, status:'reading',
-      addedDate:todayStr(), lastReadDate:null});
-    saveBooks(books);
+    const newBook={id, title, author, type:'text', charCount:text.length, scrollRatio:0, status:'reading', addedDate:todayStr(), lastReadDate:null, updatedAt:Date.now()};
+    books.push(newBook); saveBooks(books);
+    if(window.cloudUploadFile) window.cloudUploadFile(id, new TextEncoder().encode(text), 'text').catch(window.cloudSyncError);
   }
 
   closeAddModal();
@@ -375,6 +379,7 @@ async function deleteBook(id){
   saveBooks(books);
   await idbDelete('pdfs', id);
   await idbDelete('texts', id);
+  if(window.cloudDeleteBook) window.cloudDeleteBook(id).catch(window.cloudSyncError);
   renderLibrary();
   showToast('Kitap silindi');
 }
@@ -484,7 +489,7 @@ function persistPdfProgress(num){
   const books = getBooks();
   const b = books.find(x=>x.id===activeBook.id);
   b.currentPage = num;
-  b.lastReadDate = todayStr();
+  b.lastReadDate = todayStr(); b.updatedAt=Date.now();
   if(num >= b.totalPages) b.status='finished';
   saveBooks(books);
   activeBook = b;
@@ -505,7 +510,7 @@ function saveTextProgress(force){
   const books = getBooks();
   const b = books.find(x=>x.id===activeBook.id);
   b.scrollRatio = ratio;
-  b.lastReadDate = todayStr();
+  b.lastReadDate = todayStr(); b.updatedAt=Date.now();
   if(ratio >= 0.98) b.status='finished';
   saveBooks(books);
   activeBook = b;
