@@ -457,6 +457,17 @@ function rotatePage(){
   pdfRotation = (pdfRotation + 90) % 360;
   if(pdfDoc) renderPdfPage(currentPdfPage);
 }
+
+function toggleReaderImmersive(){
+  const reader=document.getElementById('reader');
+  if(!reader.classList.contains('show')) return;
+  const enabled=reader.classList.toggle('immersive');
+  const btn=document.getElementById('immersiveBtn');
+  if(btn) btn.textContent=enabled?'⤢ Normal Görünüm':'⛶ Tam Ekran';
+  // Sayfa yeni kullanılabilir alana göre yeniden çizilsin.
+  if(pdfDoc && currentPdfPage) requestAnimationFrame(()=>renderPdfPage(currentPdfPage));
+}
+
 function finalizeSession(){
   if(!activeBook) return;
   const endPage = activeBook.type==='pdf' ? (activeBook.currentPage||1) : Math.round((activeBook.scrollRatio||0)*estimatePages(activeBook));
