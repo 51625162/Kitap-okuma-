@@ -272,31 +272,48 @@ function renderLibrary(){
 
   const grid = document.getElementById('grid');
   const empty = document.getElementById('emptyState');
+  const shelfCount = document.getElementById('shelfCount');
   grid.innerHTML='';
+  if(shelfCount) shelfCount.textContent=list.length+' kitap';
   if(list.length===0){ empty.style.display='block'; grid.style.display='none'; return; }
   empty.style.display='none'; grid.style.display='grid';
 
   list.sort((a,b)=> (b.lastReadDate||b.addedDate).localeCompare(a.lastReadDate||a.addedDate));
 
-  list.forEach(b=>{
+  list.forEach((b,index)=>{
     const progress = b.type==='pdf'
-      ? Math.round(((b.currentPage||1)/(b.totalPages||1))*100)
-      : Math.round((b.scrollRatio||0)*100);
+      ? Math.min(100,Math.round(((b.currentPage||1)/(b.totalPages||1))*100))
+      : Math.min(100,Math.round((b.scrollRatio||0)*100));
     const finished = b.status==='finished';
-    const card = document.createElement('div');
-    card.className='book-card';
+    const card = document.createElement('article');
+    const coverTone = ['sage','clay','navy','plum','ochre'][index%5];
+    card.className='book-card shelf-book '+coverTone;
+    card.setAttribute('role','button');
+    card.setAttribute('tabindex','0');
+    card.setAttribute('aria-label',b.title+' kitabını okumaya aç');
     card.innerHTML = `
-      <div class="ribbon ${finished?'finished':''}"></div>
-      <div class="book-type">${b.type==='pdf'?'PDF':'Metin'}</div>
-      <div class="book-title">${escapeHtml(b.title)}</div>
-      <div class="book-author">${escapeHtml(b.author||'')}</div>
-      <div class="book-progress-bar"><div class="book-progress-fill ${finished?'finished':''}" style="width:${progress}%"></div></div>
-      <div class="book-meta"><span>${finished?'Tamamlandı':progress+'% okundu'}</span><span>${b.type==='pdf'?(b.totalPages+' sayfa'):''}</span></div>
-      <div class="book-actions">
-        <button class="btn-continue" onclick="openReader('${b.id}')">${finished?'Tekrar Oku':'Devam Et'}</button>
-        <button class="btn-delete" onclick="deleteBook('${b.id}')">Sil</button>
+      <div class="book-cover">
+        <span class="cover-type">${b.type==='pdf'?'PDF KİTAP':'METİN'}</span>
+        <span class="cover-ornament" aria-hidden="true">✦</span>
+        <div class="cover-title">${escapeHtml(b.title)}</div>
+        <div class="cover-author">${escapeHtml(b.author||'')}</div>
+        <span class="cover-bottom">${finished?'TAMAMLANDI':'KİTAP RAFI'}</span>
+      </div>
+      <div class="shelf-book-info">
+        <div class="book-progress-bar"><div class="book-progress-fill ${finished?'finished':''}" style="width:${progress}%"></div></div>
+        <div class="book-meta"><span>${finished?'Tamamlandı':progress+'% okundu'}</span><span>${b.type==='pdf'?(b.totalPages+' sayfa'):''}</span></div>
+        <div class="book-actions">
+          <button class="btn-continue" type="button">${finished?'Tekrar Oku':'Okumaya Başla'}</button>
+          <button class="btn-delete" type="button" aria-label="Kitabı raftan sil">Sil</button>
+        </div>
       </div>
     `;
+    card.addEventListener('click',()=>openReader(b.id));
+    card.addEventListener('keydown',e=>{
+      if(e.target===card && (e.key==='Enter'||e.key===' ')){e.preventDefault();openReader(b.id);}
+    });
+    card.querySelector('.btn-continue').addEventListener('click',e=>{e.stopPropagation();openReader(b.id);});
+    card.querySelector('.btn-delete').addEventListener('click',e=>{e.stopPropagation();deleteBook(b.id);});
     grid.appendChild(card);
   });
 }
