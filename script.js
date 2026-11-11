@@ -539,17 +539,21 @@ async function renderPdfPage(num){
   // Yüksek yoğunluklu tablet/telefon ekranlarında metni keskin çizmek için
   // canvas'ın gerçek piksel çözünürlüğünü cihaz piksel oranına yükselt.
   const outputScale = Math.min(window.devicePixelRatio || 1, 3);
+  // Sayfa içeriğini biraz aşağı al: üstte temiz bir nefes alanı bırak,
+  // aynı miktarda alt boşluğu azalt.
+  const pageTopSpace = 28;
   canvas.width = Math.ceil(viewport.width * outputScale);
-  canvas.height = Math.ceil(viewport.height * outputScale);
+  canvas.height = Math.ceil((viewport.height + pageTopSpace) * outputScale);
   canvas.style.setProperty('width', viewport.width+'px', 'important');
-  canvas.style.setProperty('height', viewport.height+'px', 'important');
+  canvas.style.setProperty('height', (viewport.height + pageTopSpace)+'px', 'important');
   canvas.style.setProperty('max-width', 'none', 'important');
   canvas.style.setProperty('max-height', 'none', 'important');
+  canvas.style.background = '#fff';
   canvas.style.flex = '0 0 auto';
   await page.render({
     canvasContext: ctx,
     viewport,
-    transform: outputScale === 1 ? null : [outputScale, 0, 0, outputScale, 0, 0]
+    transform: [outputScale, 0, 0, outputScale, 0, pageTopSpace * outputScale]
   }).promise;
   document.getElementById('pageIndicator').textContent = num+' / '+pdfDoc.numPages;
   document.getElementById('readerProgressFill').style.width = Math.round((num/pdfDoc.numPages)*100)+'%';
