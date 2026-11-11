@@ -280,3 +280,8 @@
 .zoom-control input{width:92px;accent-color:var(--forest);margin:0}
 .zoom-control output{min-width:38px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
 @media(max-width:700px){.reader-top{flex-wrap:wrap;gap:8px}.reader-controls{flex-wrap:wrap;justify-content:flex-end}.zoom-control input{width:68px}}
+
+/* Tablet and desktop PDF zoom: preserve rendered pixel dimensions for scrolling */
+.reader .reader-body{overflow:auto!important;}
+.reader #pdfCanvas{flex:0 0 auto!important;}
+.reader.immersive #pdfCanvas{width:auto!important;max-width:none!important;}
