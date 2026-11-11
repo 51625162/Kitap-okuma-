@@ -359,3 +359,25 @@
     z-index: 5 !important;
   }
 }
+
+
+/* Final override: zoom is a dedicated row between reading controls and page */
+#reader #readerZoomControl {
+  position: relative !important;
+  inset: auto !important;
+  transform: none !important;
+  float: none !important;
+  display: flex !important;
+  width: max-content !important;
+  max-width: calc(100% - 20px) !important;
+  margin: 10px auto 14px !important;
+  z-index: 2 !important;
+  box-sizing: border-box !important;
+}
+#reader #readerZoomControl input {
+  min-width: 64px !important;
+  max-width: 34vw !important;
+}
+#reader #readerBody {
+  clear: both;
+}
