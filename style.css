@@ -253,3 +253,22 @@
 @media(min-width:700px){
   .reader.immersive .text-page{padding:30px 7vw;font-size:21px;}
 }
+
+
+/* Tabletlerde PDF sayfasını yatay ekranın tamamına yay */
+@media (min-width: 700px) {
+  .reader:not(.immersive) .reader-body {
+    width: 100%;
+    padding: 8px 10px;
+    overflow: auto;
+  }
+  .reader:not(.immersive) #pdfCanvas {
+    display: block;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    flex: 0 0 auto;
+    margin: 0 auto;
+  }
+}
