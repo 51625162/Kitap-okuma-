@@ -3,6 +3,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs
 /* ---------------- Storage helpers ---------------- */
 const LS_BOOKS = 'kitaplik_books';
 const LS_STATS = 'kitaplik_stats';
+const LS_READING_BOOKMARK = 'kitaplik_reading_bookmark';
 let db;
 
 function openDB(){
@@ -51,6 +52,43 @@ function getStats(){
   }));
 }
 function saveStats(s){ localStorage.setItem(LS_STATS, JSON.stringify(s)); }
+
+
+/* ---------------- Persistent reading bookmark ---------------- */
+function getReadingBookmark(){
+  try { return JSON.parse(localStorage.getItem(LS_READING_BOOKMARK) || 'null'); }
+  catch(e){ return null; }
+}
+function saveReadingBookmark(){
+  const title=document.getElementById('bookmarkBookTitle').value.trim();
+  const page=Math.max(1,parseInt(document.getElementById('bookmarkPage').value,10)||0);
+  if(!title || !page){ showToast('Kitap adını ve sayfa numarasını gir'); return; }
+  const record={title,page,updatedAt:new Date().toISOString()};
+  localStorage.setItem(LS_READING_BOOKMARK,JSON.stringify(record));
+  renderReadingBookmark();
+  showToast('Okuma konumun kalıcı olarak kaydedildi');
+}
+function renderReadingBookmark(){
+  const record=getReadingBookmark();
+  const titleInput=document.getElementById('bookmarkBookTitle');
+  const pageInput=document.getElementById('bookmarkPage');
+  const display=document.getElementById('bookmarkSaved');
+  if(!titleInput || !pageInput || !display) return;
+  if(record){
+    titleInput.value=record.title;
+    pageInput.value=record.page;
+    const date=record.updatedAt ? new Date(record.updatedAt).toLocaleString('tr-TR') : '';
+    display.innerHTML='<strong>'+escapeHtml(record.title)+'</strong><span>Sayfa '+record.page+'</span><small>Son kayıt: '+escapeHtml(date)+'</small>';
+  } else {
+    display.textContent='Henüz kayıtlı bir okuma konumu yok.';
+  }
+}
+function syncReadingBookmark(book,page){
+  if(!book) return;
+  const record={title:book.title,page:Math.max(1,page||1),bookId:book.id,updatedAt:new Date().toISOString()};
+  localStorage.setItem(LS_READING_BOOKMARK,JSON.stringify(record));
+  renderReadingBookmark();
+}
 
 /* ---------------- Motivational quotes ---------------- */
 const QUOTES = [
@@ -168,6 +206,7 @@ window.addEventListener('DOMContentLoaded', async ()=>{
   showQuote();
   refreshStreakDisplay();
   renderLibrary();
+  renderReadingBookmark();
   setupDropzone();
 });
 
@@ -449,6 +488,7 @@ function persistPdfProgress(num){
   if(num >= b.totalPages) b.status='finished';
   saveBooks(books);
   activeBook = b;
+  syncReadingBookmark(b,num);
   if(num >= b.totalPages) celebrateFinish();
 }
 function nextPage(){ if(currentPdfPage < pdfDoc.numPages){ currentPdfPage++; renderPdfPage(currentPdfPage);} }
@@ -469,6 +509,7 @@ function saveTextProgress(force){
   if(ratio >= 0.98) b.status='finished';
   saveBooks(books);
   activeBook = b;
+  syncReadingBookmark(b, Math.max(1,Math.round(ratio*estimatePages(b))));
   document.getElementById('readerProgressFill').style.width = Math.round(ratio*100)+'%';
   if(ratio>=0.98 && force!==false) celebrateFinish();
 }
