@@ -21,6 +21,8 @@
   <div class="header-actions">
     <button class="streak-pill" id="streakPill" onclick="openStats()">🔥 <span id="streakCount">0</span> gün</button>
     <button class="icon-btn" onclick="openStats()">📊 İstatistikler</button>
+    <button class="icon-btn" id="firebaseAuthBtn" onclick="firebaseSignIn()">Google ile Giriş</button>
+    <span id="firebaseSyncStatus" class="sync-status">Cihazda kayıtlı</span>
     <button class="btn-primary" onclick="openAddModal()">+ Kitap Ekle</button>
   </div>
 </div>
@@ -157,6 +159,10 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="firebase-sync.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
