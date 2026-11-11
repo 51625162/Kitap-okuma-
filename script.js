@@ -51,7 +51,7 @@ function getStats(){
     dailyGoal:10, badges:[]
   }));
 }
-function saveStats(s){ localStorage.setItem(LS_STATS, JSON.stringify(s)); if(window.queueCloudSync) window.queueCloudSync(); }
+function saveStats(s){ s.updatedAt=Date.now(); localStorage.setItem(LS_STATS, JSON.stringify(s)); if(window.queueCloudSync) window.queueCloudSync(); }
 
 
 /* ---------------- Persistent reading bookmark ---------------- */
@@ -407,7 +407,9 @@ async function openReader(id){
     document.getElementById('fontBtns').style.display='none';
     document.getElementById('rotateBtn').style.display='inline-block';
     pdfRotation = 0;
-    const bytes = await idbGet('pdfs', id);
+    let bytes = await idbGet('pdfs', id);
+    if(!bytes && window.cloudDownloadFile) bytes = (await window.cloudDownloadFile(id)).buffer;
+    if(!bytes) throw new Error('PDF bu cihazda bulunamadı. Google hesabıyla giriş yapıp eşitlemeyi bekle.');
     pdfDoc = await pdfjsLib.getDocument({data: bytes.slice(0)}).promise;
     currentPdfPage = activeBook.currentPage || 1;
     renderPdfPage(currentPdfPage);
@@ -418,7 +420,9 @@ async function openReader(id){
     document.getElementById('pdfFooter').style.display='none';
     document.getElementById('fontBtns').style.display='flex';
     document.getElementById('rotateBtn').style.display='none';
-    const text = await idbGet('texts', id);
+    let text = await idbGet('texts', id);
+    if(!text && window.cloudDownloadFile) { await window.cloudDownloadFile(id); text = await idbGet('texts', id); }
+    if(!text) throw new Error('Kitap metni bu cihazda bulunamadı.');
     document.getElementById('textPage').style.fontSize = fontSize+'px';
     document.getElementById('textPage').textContent = text;
     const body = document.getElementById('readerBody');
