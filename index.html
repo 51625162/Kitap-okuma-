@@ -116,12 +116,7 @@
 
 <!-- Reader -->
 <div class="reader" id="reader">
-      <div class="zoom-control" id="readerZoomControl" aria-label="Sayfa boyutu">
-        <button type="button" onclick="adjustReaderZoom(-10)" aria-label="Küçült">−</button>
-        <input id="readerZoom" type="range" min="10" max="150" step="10" value="100" oninput="setReaderZoom(this.value)" aria-label="Yakınlaştırma yüzdesi">
-        <button type="button" onclick="adjustReaderZoom(10)" aria-label="Büyüt">+</button>
-        <output id="readerZoomValue">100%</output>
-      </div>
+
   <div class="reader-top">
     <button class="icon-btn" onclick="closeReader()">← Rafa Dön</button>
     <div class="reader-title" id="readerTitle"></div>
@@ -154,6 +149,12 @@
     </div>
     <div class="timer-total">Bu kitaptaki toplam okuma: <b id="bookTotalReadingTime">00:00:00</b></div>
   </section>
+      <div class="zoom-control" id="readerZoomControl" aria-label="Sayfa boyutu">
+        <button type="button" onclick="adjustReaderZoom(-10)" aria-label="Küçült">−</button>
+        <input id="readerZoom" type="range" min="10" max="150" step="10" value="100" oninput="setReaderZoom(this.value)" aria-label="Yakınlaştırma yüzdesi">
+        <button type="button" onclick="adjustReaderZoom(10)" aria-label="Büyüt">+</button>
+        <output id="readerZoomValue">100%</output>
+      </div>
   <div class="reader-body" id="readerBody">
     <canvas id="pdfCanvas" onclick="toggleReaderImmersive()" style="display:none;" title="Tam ekran için dokun"></canvas>
     <div class="text-page" id="textPage" onclick="toggleReaderImmersive()" style="display:none;"></div>
