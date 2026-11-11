@@ -305,3 +305,39 @@
 #readerZoomControl input{display:block;width:105px;height:28px;margin:0;accent-color:var(--forest);touch-action:pan-x}
 #readerZoomControl output{display:inline-block;min-width:42px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
 @media(max-width:700px){#readerZoomControl{top:8px!important;right:8px!important;gap:4px;padding:4px 6px}#readerZoomControl input{width:72px}#readerZoomControl button{width:30px;height:30px;min-width:30px}}
+
+/* Phone layout: keep the zoom slider away from browser chrome and reader buttons */
+@media (max-width: 700px) {
+  #readerZoomControl {
+    position: fixed !important;
+    top: auto !important;
+    right: 50% !important;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 76px) !important;
+    transform: translateX(50%) !important;
+    width: max-content !important;
+    max-width: calc(100vw - 20px) !important;
+    min-height: 46px !important;
+    padding: 5px 8px !important;
+    gap: 7px !important;
+    border-radius: 14px !important;
+    background: rgba(250,247,239,.98) !important;
+    box-shadow: 0 4px 18px rgba(0,0,0,.24) !important;
+    z-index: 2147483000 !important;
+  }
+  #readerZoomControl button {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    font-size: 23px !important;
+  }
+  #readerZoomControl input {
+    width: min(34vw, 118px) !important;
+    min-width: 76px !important;
+    height: 34px !important;
+    touch-action: pan-x !important;
+  }
+  #readerZoomControl output {
+    min-width: 42px !important;
+    font-size: 13px !important;
+  }
+}
