@@ -272,3 +272,11 @@
     margin: 0 auto;
   }
 }
+
+
+/* Reader zoom percentage control */
+.zoom-control{display:flex;align-items:center;gap:6px;padding:4px 7px;border:1px solid var(--line);border-radius:9px;background:var(--bg-alt);color:var(--ink);font-size:12px}
+.zoom-control button{width:28px;height:28px;border:0;border-radius:6px;background:var(--forest);color:#fff;font-size:19px;line-height:1}
+.zoom-control input{width:92px;accent-color:var(--forest);margin:0}
+.zoom-control output{min-width:38px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
+@media(max-width:700px){.reader-top{flex-wrap:wrap;gap:8px}.reader-controls{flex-wrap:wrap;justify-content:flex-end}.zoom-control input{width:68px}}
