@@ -227,3 +227,29 @@
 @media(max-width:620px){.bookmark-fields{grid-template-columns:1fr 1fr}.bookmark-fields label:first-child{grid-column:1}.bookmark-fields input#bookmarkBookTitle{grid-column:1/-1}.bookmark-fields button{grid-column:1/-1;width:100%}}
 
 .sync-status{font-size:11px;color:var(--ink-soft);white-space:nowrap;}@media(max-width:700px){.header-actions{flex-wrap:wrap;justify-content:flex-end;gap:7px}.sync-status{width:100%;text-align:right}.header-actions .icon-btn{font-size:11px;padding:7px}}
+
+
+/* ---------- Immersive reading mode ---------- */
+.reader.immersive .reader-top,
+.reader.immersive .reader-progress-track,
+.reader.immersive .reading-timer,
+.reader.immersive .reader-footer{display:none!important;}
+.reader.immersive .reader-body{
+  flex:1;min-height:0;width:100%;padding:0;overflow:auto;
+  display:flex;justify-content:center;align-items:flex-start;
+}
+.reader.immersive #pdfCanvas{
+  display:block;flex:0 0 auto;width:100%;max-width:none;max-height:none;
+  height:auto;margin:0;border-radius:0;box-shadow:none;
+}
+.reader.immersive .text-page{
+  width:100%;max-width:none;min-height:100%;padding:22px 20px;
+  font-size:19px;line-height:1.9;
+}
+.reader.immersive.night .reader-body{background:#1B2420;}
+.reader.immersive #textPage{cursor:zoom-out;}
+.reader:not(.immersive) #pdfCanvas,
+.reader:not(.immersive) #textPage{cursor:zoom-in;}
+@media(min-width:700px){
+  .reader.immersive .text-page{padding:30px 7vw;font-size:21px;}
+}
