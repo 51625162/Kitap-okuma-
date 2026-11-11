@@ -5,6 +5,7 @@ const LS_BOOKS = 'kitaplik_books';
 const LS_STATS = 'kitaplik_stats';
 const LS_READING_BOOKMARK = 'kitaplik_reading_bookmark';
 let db;
+let readerZoom = 100;
 
 function openDB(){
   return new Promise((res,rej)=>{
@@ -444,7 +445,7 @@ async function openReader(id){
         text=await idbGet('texts',id);
       }
       if(!text) throw new Error('Kitap metni bu cihazda veya bulut hesabında bulunamadı.');
-      textPage.style.fontSize=fontSize+'px';
+      textPage.style.fontSize=(fontSize*readerZoom/100)+'px';
       textPage.textContent=text;
       const body=document.getElementById('readerBody');
       setTimeout(()=>{body.scrollTop=(openingBook.scrollRatio||0)*(body.scrollHeight-body.clientHeight);},30);
@@ -528,10 +529,12 @@ async function renderPdfPage(num){
   const baseViewport = page.getViewport({scale: 1, rotation: pdfRotation});
   // Tam ekran modunda sayfayı yüksekliğe göre küçültme; genişliğe yay ve dikey kaydırmaya izin ver.
   const immersive = document.getElementById('reader').classList.contains('immersive');
-  const scale = immersive
-    ? Math.min(availW / baseViewport.width, 3)
-    : Math.min(availW / baseViewport.width, availH / baseViewport.height, 3);
-  const viewport = page.getViewport({scale: Math.max(scale, 0.3), rotation: pdfRotation});
+  const fitScale = immersive
+    ? (availW / baseViewport.width)
+    : Math.min(availW / baseViewport.width, availH / baseViewport.height);
+  // Kullanıcının yüzde ayarı, ekrana sığdırılmış temel boyuta uygulanır.
+  const scale = fitScale * (readerZoom / 100);
+  const viewport = page.getViewport({scale: Math.max(scale, 0.2), rotation: pdfRotation});
 
   canvas.width = viewport.width; canvas.height = viewport.height;
   await page.render({canvasContext: ctx, viewport}).promise;
@@ -575,9 +578,22 @@ function saveTextProgress(force){
 function updateTextProgressDisplay(){
   document.getElementById('readerProgressFill').style.width = Math.round((activeBook.scrollRatio||0)*100)+'%';
 }
+function setReaderZoom(value){
+  readerZoom=Math.max(60,Math.min(150,Number(value)||100));
+  const slider=document.getElementById('readerZoom');
+  const label=document.getElementById('readerZoomValue');
+  if(slider) slider.value=readerZoom;
+  if(label) label.textContent=readerZoom+'%';
+  if(pdfDoc && currentPdfPage) renderPdfPage(currentPdfPage);
+  else {
+    const page=document.getElementById('textPage');
+    if(page) page.style.fontSize=(fontSize*readerZoom/100)+'px';
+  }
+}
+function adjustReaderZoom(delta){ setReaderZoom(readerZoom+delta); }
 function changeFont(delta){
   fontSize = Math.max(13, Math.min(26, fontSize+delta*1));
-  document.getElementById('textPage').style.fontSize = fontSize+'px';
+  document.getElementById('textPage').style.fontSize = (fontSize*readerZoom/100)+'px';
 }
 function toggleNight(){
   document.getElementById('reader').classList.toggle('night');
