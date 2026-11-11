@@ -262,17 +262,7 @@
     padding: 8px 10px;
     overflow: auto;
   }
-  .reader:not(.immersive) #pdfCanvas {
-    display: block;
-    width: 100% !important;
-    max-width: 100% !important;
-    height: auto !important;
-    max-height: none !important;
-    flex: 0 0 auto;
-    margin: 0 auto;
-  }
 }
-
 
 /* Reader zoom percentage control */
 .zoom-control{display:flex;align-items:center;gap:6px;padding:4px 7px;border:1px solid var(--line);border-radius:9px;background:var(--bg-alt);color:var(--ink);font-size:12px}
@@ -285,3 +275,11 @@
 .reader .reader-body{overflow:auto!important;}
 .reader #pdfCanvas{flex:0 0 auto!important;}
 .reader.immersive #pdfCanvas{width:auto!important;max-width:none!important;}
+
+/* Zoom control stays accessible in normal and immersive reader modes */
+.zoom-floating{position:fixed;top:12px;right:14px;z-index:10020;padding:5px;border-radius:12px;background:rgba(250,247,239,.96);box-shadow:0 3px 16px rgba(0,0,0,.18);backdrop-filter:blur(8px)}
+.reader.immersive .zoom-floating{display:block}
+.reader .reader-body{overflow:auto!important;min-width:0}
+.reader #pdfCanvas{flex:0 0 auto!important}
+.reader.immersive #pdfCanvas{width:auto!important;max-width:none!important;max-height:none!important}
+@media(max-width:700px){.zoom-floating{top:8px;right:8px}.zoom-control{gap:4px;padding:3px 5px}.zoom-control input{width:64px}}
