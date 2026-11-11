@@ -28,6 +28,23 @@
 <div class="wrap">
   <div class="quote-strip" id="quoteStrip"></div>
 
+
+  <section class="bookmark-panel" aria-label="Kalıcı okuma kaydı">
+    <div class="bookmark-heading">
+      <div><span class="bookmark-kicker">KALICI OKUMA NOTU</span><h2>Kaldığım Yeri Kaydet</h2></div>
+      <span class="bookmark-icon">▤</span>
+    </div>
+    <div class="bookmark-fields">
+      <label for="bookmarkBookTitle">Kitap adı</label>
+      <input type="text" id="bookmarkBookTitle" placeholder="Okuduğun kitabın adı">
+      <label for="bookmarkPage">Kaldığım sayfa</label>
+      <input type="number" id="bookmarkPage" min="1" step="1" placeholder="Örn. 48">
+      <button class="btn-primary" onclick="saveReadingBookmark()">Kaydı Sakla</button>
+    </div>
+    <div class="bookmark-saved" id="bookmarkSaved" aria-live="polite">Henüz kayıtlı bir okuma konumu yok.</div>
+    <p class="bookmark-note">Kaydın bu cihazdaki tarayıcıda saklanır; siteyi yeniden açtığında burada görünür.</p>
+  </section>
+
   <div class="filters">
     <button class="filter-btn active" data-f="all" onclick="setFilter('all')">Tümü</button>
     <button class="filter-btn" data-f="reading" onclick="setFilter('reading')">Devam Eden</button>
