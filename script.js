@@ -524,8 +524,8 @@ async function renderPdfPage(num){
 
   // Ekran yatay ya da dikey olsun, sayfayı mevcut alana sığdır (döndürme dahil)
   const body = document.getElementById('readerBody');
-  const availW = Math.max(200, body.clientWidth - 12);
-  const availH = Math.max(200, body.clientHeight - 12);
+  const availW = Math.max(200, body.clientWidth - 24);
+  const availH = Math.max(200, body.clientHeight - 24);
   const baseViewport = page.getViewport({scale: 1, rotation: pdfRotation});
   // Tam ekran modunda sayfayı yüksekliğe göre küçültme; genişliğe yay ve dikey kaydırmaya izin ver.
   const immersive = document.getElementById('reader').classList.contains('immersive');
@@ -541,6 +541,8 @@ async function renderPdfPage(num){
   // CSS'deki tablet width:100% kurallarını geçersiz kıl; gerçek yüzde boyutunu uygula.
   canvas.style.setProperty('width', Math.ceil(viewport.width)+'px', 'important');
   canvas.style.setProperty('height', Math.ceil(viewport.height)+'px', 'important');
+  canvas.style.setProperty('max-width', 'none', 'important');
+  canvas.style.setProperty('max-height', 'none', 'important');
   canvas.style.setProperty('max-width', 'none', 'important');
   canvas.style.setProperty('max-height', 'none', 'important');
   canvas.style.flex = '0 0 auto';
