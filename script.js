@@ -536,7 +536,14 @@ async function renderPdfPage(num){
   const scale = fitScale * (readerZoom / 100);
   const viewport = page.getViewport({scale: Math.max(scale, 0.2), rotation: pdfRotation});
 
-  canvas.width = viewport.width; canvas.height = viewport.height;
+  canvas.width = Math.ceil(viewport.width);
+  canvas.height = Math.ceil(viewport.height);
+  // CSS'deki tablet width:100% kurallarını geçersiz kıl; gerçek yüzde boyutunu uygula.
+  canvas.style.setProperty('width', Math.ceil(viewport.width)+'px', 'important');
+  canvas.style.setProperty('height', Math.ceil(viewport.height)+'px', 'important');
+  canvas.style.setProperty('max-width', 'none', 'important');
+  canvas.style.setProperty('max-height', 'none', 'important');
+  canvas.style.flex = '0 0 auto';
   await page.render({canvasContext: ctx, viewport}).promise;
   document.getElementById('pageIndicator').textContent = num+' / '+pdfDoc.numPages;
   document.getElementById('readerProgressFill').style.width = Math.round((num/pdfDoc.numPages)*100)+'%';
