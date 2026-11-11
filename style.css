@@ -341,3 +341,21 @@
     font-size: 13px !important;
   }
 }
+
+
+/* Phone: zoom controls stay in document flow and never cover book text */
+@media (max-width: 700px) {
+  #readerZoomControl {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+    display: flex !important;
+    width: max-content !important;
+    max-width: calc(100% - 16px) !important;
+    margin: 8px auto 12px !important;
+    z-index: 5 !important;
+  }
+}
