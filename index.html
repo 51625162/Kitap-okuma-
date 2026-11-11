@@ -124,6 +124,12 @@
         <button onclick="changeFont(-1)">A-</button>
         <button onclick="changeFont(1)">A+</button>
       </div>
+      <div class="zoom-control" aria-label="Okuma yakınlaştırma">
+        <button type="button" onclick="adjustReaderZoom(-10)" aria-label="Yüzde 10 küçült">−</button>
+        <input id="readerZoom" type="range" min="60" max="150" step="10" value="100" oninput="setReaderZoom(this.value)" aria-label="Yakınlaştırma yüzdesi">
+        <button type="button" onclick="adjustReaderZoom(10)" aria-label="Yüzde 10 büyüt">+</button>
+        <output id="readerZoomValue">100%</output>
+      </div>
       <button class="icon-btn" id="immersiveBtn" onclick="toggleReaderImmersive()">⛶ Tam Ekran</button>
       <button class="icon-btn" id="rotateBtn" onclick="rotatePage()" style="display:none;">⤾ Döndür</button>
       <button class="icon-btn" onclick="toggleNight()">🌙</button>
