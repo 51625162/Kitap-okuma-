@@ -592,7 +592,7 @@ function updateTextProgressDisplay(){
   document.getElementById('readerProgressFill').style.width = Math.round((activeBook.scrollRatio||0)*100)+'%';
 }
 function setReaderZoom(value){
-  readerZoom=Math.max(60,Math.min(150,Number(value)||100));
+  readerZoom=Math.max(10,Math.min(150,Number(value)||100));
   const slider=document.getElementById('readerZoom');
   const label=document.getElementById('readerZoomValue');
   if(slider) slider.value=readerZoom;
