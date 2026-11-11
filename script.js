@@ -122,7 +122,7 @@ let timerTick = null;
 let timerBookId = null;
 const LS_READING_TIMERS = 'kitaplik_reading_timers';
 function getReadingTimers(){ return JSON.parse(localStorage.getItem(LS_READING_TIMERS) || '{}'); }
-function saveReadingTimers(data){ localStorage.setItem(LS_READING_TIMERS, JSON.stringify(data)); if(window.queueCloudSync) window.queueCloudSync(); }
+function saveReadingTimers(data){ data.updatedAt=Date.now(); localStorage.setItem(LS_READING_TIMERS, JSON.stringify(data)); if(window.queueCloudSync) window.queueCloudSync(); }
 function timerElapsed(t){
   if(!t) return 0;
   return Math.max(0, (t.elapsedMs||0) + (t.startedAt ? Date.now()-t.startedAt : 0));
