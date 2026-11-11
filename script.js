@@ -77,6 +77,90 @@ let textPages = [];
 let currentTextPageIdx = 0;
 let fontSize = 17;
 let sessionStartPage = 0;
+let timerTick = null;
+let timerBookId = null;
+const LS_READING_TIMERS = 'kitaplik_reading_timers';
+function getReadingTimers(){ return JSON.parse(localStorage.getItem(LS_READING_TIMERS) || '{}'); }
+function saveReadingTimers(data){ localStorage.setItem(LS_READING_TIMERS, JSON.stringify(data)); }
+function timerElapsed(t){
+  if(!t) return 0;
+  return Math.max(0, (t.elapsedMs||0) + (t.startedAt ? Date.now()-t.startedAt : 0));
+}
+function formatReadingTime(ms){
+  const sec=Math.floor(ms/1000), h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
+  return [h,m,s].map(v=>String(v).padStart(2,'0')).join(':');
+}
+function currentReadingTimer(){
+  if(!activeBook) return null;
+  const all=getReadingTimers();
+  return all[activeBook.id] || {elapsedMs:0,startedAt:null,sessions:[]};
+}
+function renderReadingTimer(){
+  if(!activeBook) return;
+  const t=currentReadingTimer(), running=!!t.startedAt;
+  document.getElementById('readingTimerDisplay').textContent=formatReadingTime(timerElapsed(t));
+  document.getElementById('bookTotalReadingTime').textContent=formatReadingTime((t.totalMs||0)+timerElapsed(t));
+  document.getElementById('readingTimerStatus').textContent=running?'Okuma devam ediyor':(t.elapsedMs>0?'Duraklatıldı':'Henüz başlamadı');
+  document.getElementById('timerStartBtn').textContent=t.elapsedMs>0?'Devam Et':'Başla';
+  document.getElementById('timerStartBtn').disabled=running;
+  document.getElementById('timerPauseBtn').disabled=!running;
+}
+function persistCurrentTimer(t){
+  if(!activeBook) return;
+  const all=getReadingTimers(); all[activeBook.id]=t; saveReadingTimers(all);
+}
+function startReadingTimer(){
+  if(!activeBook) return;
+  const t=currentReadingTimer();
+  if(t.startedAt) return;
+  t.startedAt=Date.now(); persistCurrentTimer(t);
+  if(timerTick) clearInterval(timerTick);
+  timerTick=setInterval(renderReadingTimer,250);
+  renderReadingTimer();
+}
+function pauseReadingTimer(){
+  if(!activeBook) return;
+  const t=currentReadingTimer();
+  if(t.startedAt){ t.elapsedMs=timerElapsed(t); t.startedAt=null; persistCurrentTimer(t); }
+  if(timerTick){ clearInterval(timerTick); timerTick=null; }
+  renderReadingTimer();
+}
+function finishReadingTimer(){
+  if(!activeBook) return;
+  const t=currentReadingTimer();
+  if(t.startedAt){ t.elapsedMs=timerElapsed(t); t.startedAt=null; }
+  const duration=t.elapsedMs||0;
+  if(duration>0){
+    t.totalMs=(t.totalMs||0)+duration;
+    t.sessions=t.sessions||[];
+    t.sessions.push({date:new Date().toISOString(),durationMs:duration,page:activeBook.type==='pdf'?(activeBook.currentPage||1):Math.round((activeBook.scrollRatio||0)*estimatePages(activeBook))});
+  }
+  t.elapsedMs=0; persistCurrentTimer(t);
+  if(timerTick){ clearInterval(timerTick); timerTick=null; }
+  renderReadingTimer();
+  showToast('Okuma oturumu kaydedildi: '+formatReadingTime(duration));
+}
+function resetReadingTimer(){
+  if(!activeBook) return;
+  if(!confirm('Bu oturumun süresini sıfırlamak istiyor musun?')) return;
+  const t=currentReadingTimer(); t.elapsedMs=0; t.startedAt=null; persistCurrentTimer(t);
+  if(timerTick){ clearInterval(timerTick); timerTick=null; }
+  renderReadingTimer(); showToast('Oturum süresi sıfırlandı');
+}
+function restartReading(){
+  if(!activeBook) return;
+  if(!confirm('Kitabı ilk sayfaya döndürüp okuma süresini sıfırlamak istiyor musun?')) return;
+  const t=currentReadingTimer(); t.elapsedMs=0; t.startedAt=null; persistCurrentTimer(t);
+  if(timerTick){ clearInterval(timerTick); timerTick=null; }
+  if(activeBook.type==='pdf'){
+    currentPdfPage=1; activeBook.currentPage=1; renderPdfPage(1);
+  } else {
+    activeBook.scrollRatio=0;
+    const books=getBooks(), b=books.find(x=>x.id===activeBook.id); b.scrollRatio=0; b.status='reading'; saveBooks(books);
+    document.getElementById('readerBody').scrollTop=0; updateTextProgressDisplay();
+  }
+  renderReadingTimer(); showToast('Kitap ve oturum baştan başlatıldı');
+}
 
 /* ---------------- Init ---------------- */
 window.addEventListener('DOMContentLoaded', async ()=>{
@@ -264,7 +348,13 @@ async function openReader(id){
   sessionStartPage = activeBook.type==='pdf' ? (activeBook.currentPage||1) : Math.round((activeBook.scrollRatio||0)*estimatePages(activeBook));
 
   document.getElementById('readerTitle').textContent = activeBook.title;
+  timerBookId = activeBook.id;
   document.getElementById('reader').classList.add('show');
+  renderReadingTimer();
+  if(currentReadingTimer().startedAt){
+    if(timerTick) clearInterval(timerTick);
+    timerTick=setInterval(renderReadingTimer,250);
+  }
 
   if(activeBook.type==='pdf'){
     document.getElementById('pdfCanvas').style.display='block';
@@ -296,6 +386,7 @@ async function openReader(id){
   }
 }
 function closeReader(){
+  pauseReadingTimer();
   document.getElementById('reader').classList.remove('show');
   const body = document.getElementById('readerBody');
   body.onscroll = null;
