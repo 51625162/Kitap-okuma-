@@ -534,7 +534,7 @@ async function renderPdfPage(num){
     : Math.min(availW / baseViewport.width, availH / baseViewport.height);
   // Kullanıcının yüzde ayarı, ekrana sığdırılmış temel boyuta uygulanır.
   const scale = fitScale * (readerZoom / 100);
-  const viewport = page.getViewport({scale: Math.max(scale, 0.2), rotation: pdfRotation});
+  const viewport = page.getViewport({scale: Math.max(scale, 0.05), rotation: pdfRotation});
 
   // Yüksek yoğunluklu tablet/telefon ekranlarında metni keskin çizmek için
   // canvas'ın gerçek piksel çözünürlüğünü cihaz piksel oranına yükselt.
@@ -592,7 +592,7 @@ function updateTextProgressDisplay(){
   document.getElementById('readerProgressFill').style.width = Math.round((activeBook.scrollRatio||0)*100)+'%';
 }
 function setReaderZoom(value){
-  readerZoom=Math.max(10,Math.min(150,Number(value)||100));
+  readerZoom=Math.max(10,Math.min(150,Number(value) || 10));
   const slider=document.getElementById('readerZoom');
   const label=document.getElementById('readerZoomValue');
   if(slider) slider.value=readerZoom;
