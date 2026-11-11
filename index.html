@@ -53,11 +53,20 @@
     <button class="filter-btn" data-f="finished" onclick="setFilter('finished')">Tamamlanan</button>
   </div>
 
-  <div id="grid" class="grid"></div>
+  <section class="bookshelf-section" aria-label="Kitaplığım">
+    <div class="shelf-heading">
+      <div><span class="shelf-kicker">KİŞİSEL KÜTÜPHANEN</span><h2>Kitaplığım</h2><p>Eklediğin kitaplar burada durur. Okumak için kitabın kapağına dokun.</p></div>
+      <div class="shelf-count" id="shelfCount">0 kitap</div>
+    </div>
+    <div class="bookshelf-frame">
+      <div id="grid" class="grid"></div>
+      <div class="bookshelf-plank" aria-hidden="true"></div>
+    </div>
+  </section>
   <div id="emptyState" class="empty-state" style="display:none;">
-    <h3>Raf henüz boş</h3>
-    <p>İlk kitabını ekle, kaldığın yeri biz hatırlayalım.</p>
-    <button class="btn-primary" onclick="openAddModal()" style="margin-top:10px;">+ Kitap Ekle</button>
+    <h3>Kitaplığın henüz boş</h3>
+    <p>Kitap eklediğinde kapakları burada, kendi rafında göreceksin.</p>
+    <button class="btn-primary" onclick="openAddModal()" style="margin-top:10px;">+ İlk Kitabını Ekle</button>
   </div>
 </div>
 
