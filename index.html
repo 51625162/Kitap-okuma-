@@ -110,6 +110,22 @@
     </div>
   </div>
   <div class="reader-progress-track"><div class="reader-progress-fill" id="readerProgressFill"></div></div>
+
+  <section class="reading-timer" aria-label="Okuma kronometresi">
+    <div class="timer-readout">
+      <span class="timer-caption">OKUMA SÜRESİ</span>
+      <strong id="readingTimerDisplay">00:00:00</strong>
+      <span id="readingTimerStatus" class="timer-status">Başlamak için Başla'ya dokun</span>
+    </div>
+    <div class="timer-actions">
+      <button class="timer-start" id="timerStartBtn" onclick="startReadingTimer()">Başla</button>
+      <button class="timer-pause" id="timerPauseBtn" onclick="pauseReadingTimer()">Durdur</button>
+      <button class="timer-finish" onclick="finishReadingTimer()">Okuma Bitti</button>
+      <button class="timer-reset" onclick="resetReadingTimer()">Sıfırla</button>
+      <button class="timer-restart" onclick="restartReading()">Baştan Başla</button>
+    </div>
+    <div class="timer-total">Bu kitaptaki toplam okuma: <b id="bookTotalReadingTime">00:00:00</b></div>
+  </section>
   <div class="reader-body" id="readerBody">
     <canvas id="pdfCanvas" style="display:none;"></canvas>
     <div class="text-page" id="textPage" style="display:none;"></div>
