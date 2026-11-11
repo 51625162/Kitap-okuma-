@@ -225,3 +225,5 @@
 .bookmark-saved small{color:var(--ink-soft);}
 .bookmark-note{font-size:11px;color:var(--ink-soft);margin:8px 0 0;}
 @media(max-width:620px){.bookmark-fields{grid-template-columns:1fr 1fr}.bookmark-fields label:first-child{grid-column:1}.bookmark-fields input#bookmarkBookTitle{grid-column:1/-1}.bookmark-fields button{grid-column:1/-1;width:100%}}
+
+.sync-status{font-size:11px;color:var(--ink-soft);white-space:nowrap;}@media(max-width:700px){.header-actions{flex-wrap:wrap;justify-content:flex-end;gap:7px}.sync-status{width:100%;text-align:right}.header-actions .icon-btn{font-size:11px;padding:7px}}
