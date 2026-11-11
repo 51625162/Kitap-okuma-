@@ -526,7 +526,11 @@ async function renderPdfPage(num){
   const availW = Math.max(200, body.clientWidth - 12);
   const availH = Math.max(200, body.clientHeight - 12);
   const baseViewport = page.getViewport({scale: 1, rotation: pdfRotation});
-  const scale = Math.min(availW / baseViewport.width, availH / baseViewport.height, 3);
+  // Tam ekran modunda sayfayı yüksekliğe göre küçültme; genişliğe yay ve dikey kaydırmaya izin ver.
+  const immersive = document.getElementById('reader').classList.contains('immersive');
+  const scale = immersive
+    ? Math.min(availW / baseViewport.width, 3)
+    : Math.min(availW / baseViewport.width, availH / baseViewport.height, 3);
   const viewport = page.getViewport({scale: Math.max(scale, 0.3), rotation: pdfRotation});
 
   canvas.width = viewport.width; canvas.height = viewport.height;
