@@ -381,3 +381,25 @@
 #reader #readerBody {
   clear: both;
 }
+
+
+/* Mobile reader: keep zoom controls in the lower blank area, not over the text */
+@media (max-width: 700px) {
+  #reader #readerZoomControl {
+    position: fixed !important;
+    top: auto !important;
+    right: 10px !important;
+    bottom: 76px !important;
+    left: 10px !important;
+    inset-inline: 10px !important;
+    transform: none !important;
+    width: max-content !important;
+    max-width: calc(100vw - 20px) !important;
+    margin: 0 auto !important;
+    z-index: 10000 !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,.18) !important;
+  }
+  #reader #readerBody {
+    padding-bottom: 78px !important;
+  }
+}
