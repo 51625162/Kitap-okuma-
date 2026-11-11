@@ -292,3 +292,16 @@
  #readerZoomControl input{width:75px}
  .reader-controls{justify-content:flex-end}
 }
+
+/* Keep zoom control visible even when reader header is hidden in immersive mode */
+#readerZoomControl{
+ position:fixed!important;top:12px!important;right:12px!important;z-index:10050!important;
+ display:flex!important;visibility:visible!important;opacity:1!important;
+ align-items:center;gap:7px;padding:6px 9px;border:1px solid var(--line);
+ border-radius:11px;background:rgba(250,247,239,.97);color:var(--ink);
+ box-shadow:0 3px 14px rgba(0,0,0,.2);pointer-events:auto!important;
+}
+#readerZoomControl button{width:34px;height:34px;min-width:34px;border:0;border-radius:7px;background:var(--forest);color:#fff;font-size:22px;line-height:1;touch-action:manipulation}
+#readerZoomControl input{display:block;width:105px;height:28px;margin:0;accent-color:var(--forest);touch-action:pan-x}
+#readerZoomControl output{display:inline-block;min-width:42px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
+@media(max-width:700px){#readerZoomControl{top:8px!important;right:8px!important;gap:4px;padding:4px 6px}#readerZoomControl input{width:72px}#readerZoomControl button{width:30px;height:30px;min-width:30px}}
