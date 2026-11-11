@@ -389,50 +389,85 @@ async function openReader(id){
   const books = getBooks();
   activeBook = books.find(b=>b.id===id);
   if(!activeBook) return;
+  const openingBook=activeBook;
   sessionStartPage = activeBook.type==='pdf' ? (activeBook.currentPage||1) : Math.round((activeBook.scrollRatio||0)*estimatePages(activeBook));
 
   document.getElementById('readerTitle').textContent = activeBook.title;
   timerBookId = activeBook.id;
-  document.getElementById('reader').classList.add('show');
+  const reader=document.getElementById('reader');
+  reader.classList.remove('immersive');
+  reader.classList.add('show');
+  const immersiveBtn=document.getElementById('immersiveBtn');
+  if(immersiveBtn) immersiveBtn.textContent='⛶ Tam Ekran';
   renderReadingTimer();
   if(currentReadingTimer().startedAt){
     if(timerTick) clearInterval(timerTick);
     timerTick=setInterval(renderReadingTimer,250);
   }
 
-  if(activeBook.type==='pdf'){
-    document.getElementById('pdfCanvas').style.display='block';
-    document.getElementById('textPage').style.display='none';
-    document.getElementById('pdfFooter').style.display='flex';
-    document.getElementById('fontBtns').style.display='none';
-    document.getElementById('rotateBtn').style.display='inline-block';
-    pdfRotation = 0;
-    let bytes = await idbGet('pdfs', id);
-    if(!bytes && window.cloudDownloadFile) bytes = (await window.cloudDownloadFile(id)).buffer;
-    if(!bytes) throw new Error('PDF bu cihazda bulunamadı. Google hesabıyla giriş yapıp eşitlemeyi bekle.');
-    pdfDoc = await pdfjsLib.getDocument({data: bytes.slice(0)}).promise;
-    currentPdfPage = activeBook.currentPage || 1;
-    renderPdfPage(currentPdfPage);
-    window.addEventListener('resize', onReaderResize);
-  } else {
-    document.getElementById('pdfCanvas').style.display='none';
-    document.getElementById('textPage').style.display='block';
-    document.getElementById('pdfFooter').style.display='none';
-    document.getElementById('fontBtns').style.display='flex';
-    document.getElementById('rotateBtn').style.display='none';
-    let text = await idbGet('texts', id);
-    if(!text && window.cloudDownloadFile) { await window.cloudDownloadFile(id); text = await idbGet('texts', id); }
-    if(!text) throw new Error('Kitap metni bu cihazda bulunamadı.');
-    document.getElementById('textPage').style.fontSize = fontSize+'px';
-    document.getElementById('textPage').textContent = text;
-    const body = document.getElementById('readerBody');
-    setTimeout(()=>{
-      body.scrollTop = (activeBook.scrollRatio||0) * (body.scrollHeight - body.clientHeight);
-    }, 30);
-    body.onscroll = onTextScroll;
-    updateTextProgressDisplay();
+  try{
+    const canvas=document.getElementById('pdfCanvas');
+    const textPage=document.getElementById('textPage');
+    if(activeBook.type==='pdf'){
+      canvas.style.display='block';
+      textPage.style.display='none';
+      document.getElementById('pdfFooter').style.display='flex';
+      document.getElementById('fontBtns').style.display='none';
+      document.getElementById('rotateBtn').style.display='inline-block';
+      pdfRotation=0;
+
+      let stored=await idbGet('pdfs',id);
+      if(!stored && window.cloudDownloadFile){
+        const downloaded=await window.cloudDownloadFile(id);
+        stored=downloaded;
+      }
+      if(!stored) throw new Error('PDF dosyası bu cihazda veya bulut hesabında bulunamadı. Diğer cihazda Google ile giriş yapıp dosyanın yüklenmesini bekle.');
+      const bytes=stored instanceof Uint8Array ? stored : new Uint8Array(stored);
+      if(bytes.byteLength<8) throw new Error('PDF dosyası boş veya eksik indirilmiş.');
+      const signature=new TextDecoder().decode(bytes.subarray(0,5));
+      if(signature!=='%PDF-') throw new Error('İndirilen dosya geçerli bir PDF değil. Dosyayı yeniden yüklemek gerekebilir.');
+
+      pdfDoc=await pdfjsLib.getDocument({data:bytes}).promise;
+      currentPdfPage=Math.min(Math.max(1,openingBook.currentPage||1),pdfDoc.numPages);
+      await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+      await renderPdfPage(currentPdfPage);
+      window.addEventListener('resize',onReaderResize);
+    } else {
+      canvas.style.display='none';
+      textPage.style.display='block';
+      document.getElementById('pdfFooter').style.display='none';
+      document.getElementById('fontBtns').style.display='flex';
+      document.getElementById('rotateBtn').style.display='none';
+      let text=await idbGet('texts',id);
+      if(!text && window.cloudDownloadFile){
+        await window.cloudDownloadFile(id);
+        text=await idbGet('texts',id);
+      }
+      if(!text) throw new Error('Kitap metni bu cihazda veya bulut hesabında bulunamadı.');
+      textPage.style.fontSize=fontSize+'px';
+      textPage.textContent=text;
+      const body=document.getElementById('readerBody');
+      setTimeout(()=>{body.scrollTop=(openingBook.scrollRatio||0)*(body.scrollHeight-body.clientHeight);},30);
+      body.onscroll=onTextScroll;
+      updateTextProgressDisplay();
+    }
+  }catch(error){
+    console.error('Kitap açma hatası:',error);
+    pauseReadingTimer();
+    reader.classList.remove('show','immersive');
+    document.getElementById('readerBody').onscroll=null;
+    canvasOrTextCleanup();
+    pdfDoc=null;
+    activeBook=null;
+    showToast('Kitap açılamadı: '+(error.message||'Dosya yüklenemedi'));
   }
 }
+function canvasOrTextCleanup(){
+  document.getElementById('pdfCanvas').style.display='none';
+  document.getElementById('textPage').style.display='none';
+  window.removeEventListener('resize',onReaderResize);
+}
+
 function closeReader(){
   pauseReadingTimer();
   document.getElementById('reader').classList.remove('show');
